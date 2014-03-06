@@ -3,10 +3,45 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    android:gravity="center_vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="3333333"
-        />
+	<!-- <include layout="@layout/view_header_layout"/>-->
+	
+	<LinearLayout 
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_gravity="center"
+	    >
+	    <ImageView 
+	        android:id="@+id/record_image"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/record_img_no"
+	        />
+	    <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:textSize="10pt"
+	        android:text="00:00"
+	        android:textColor="@android:color/white"
+	        />
+	</LinearLayout>
+	
+	<Button 
+	    android:layout_gravity="center"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/record_btn_begin"
+	    android:layout_marginTop="30sp"
+	    />
+	
+	<Button 
+	    android:layout_gravity="center"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/upload_record_btn_selector"
+	    android:layout_marginTop="50sp"
+	    />
 </LinearLayout>
