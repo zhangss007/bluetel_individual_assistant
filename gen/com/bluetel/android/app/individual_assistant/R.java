@@ -67,8 +67,8 @@ public final class R {
         public static final int contacts=0x7f09000e;
         public static final int contacts_txt=0x7f090006;
         public static final int container=0x7f090001;
-        public static final int cp_picture=0x7f090003;
-        public static final int cp_video=0x7f090004;
+        public static final int cp_picture=0x7f090004;
+        public static final int cp_video=0x7f090003;
         public static final int image=0x7f09000c;
         public static final int local_contacter_lv=0x7f090008;
         public static final int memu_bottom=0x7f090000;
@@ -78,17 +78,18 @@ public final class R {
         public static final int text=0x7f09000d;
     }
     public static final class layout {
-        public static final int activity_main=0x7f030000;
-        public static final int capture_layout=0x7f030001;
-        public static final int contact_item=0x7f030002;
-        public static final int contact_tab_layout=0x7f030003;
-        public static final int contacts_layout=0x7f030004;
-        public static final int menu_capture_button=0x7f030005;
-        public static final int menu_contacts_button=0x7f030006;
-        public static final int menu_record_button=0x7f030007;
-        public static final int menu_set_button=0x7f030008;
-        public static final int record_layout=0x7f030009;
-        public static final int set_layout=0x7f03000a;
+        public static final int acticity_main1=0x7f030000;
+        public static final int activity_main=0x7f030001;
+        public static final int capture_layout=0x7f030002;
+        public static final int contact_item=0x7f030003;
+        public static final int contact_tab_layout=0x7f030004;
+        public static final int contacts_layout=0x7f030005;
+        public static final int menu_capture_button=0x7f030006;
+        public static final int menu_contacts_button=0x7f030007;
+        public static final int menu_record_button=0x7f030008;
+        public static final int menu_set_button=0x7f030009;
+        public static final int record_layout=0x7f03000a;
+        public static final int set_layout=0x7f03000b;
     }
     public static final class menu {
         public static final int main=0x7f080000;
