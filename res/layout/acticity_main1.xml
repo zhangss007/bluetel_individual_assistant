@@ -3,11 +3,46 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/login_bottom"
+    android:gravity="center_vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <TextView 
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="kkkkkkk"
-        />
+        android:adjustViewBounds="true"
+        android:background="@drawable/bluetel_logo_icon" 
+        android:layout_gravity="center"/>
+	
+    <LinearLayout 
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="60sp"
+        >
+        <Button 
+            android:id="@+id/connect_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="联系人"
+            android:background="@drawable/menu_version_button_selector"
+            />
+         <Button 
+             android:id="@+id/capture_upload_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="拍照上传"
+            android:background="@drawable/menu_version_button_selector"
+            android:layout_marginTop="15sp"
+            />
+         <Button 
+             android:id="@+id/record_upload_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="录音上传"
+            android:background="@drawable/menu_version_button_selector"
+            android:layout_marginTop="15sp"
+            />
+    </LinearLayout>
 </LinearLayout>
