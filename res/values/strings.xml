@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">单兵助手</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+	
+    <string name="button_contact">联系人</string>
+    <string name="button_capture">图像</string>
+    <string name="button_record">录音</string>
+    <string name="button_set">设置</string>
+    
+    <string name="haved_camera">该设备上有摄像头。。。。。</string>
+    <string name="no_camera">该设备上不存在摄像头。。。。。</string>
+</resources>

@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <LinearLayout 
+        android:id="@+id/memu_bottom"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/black"
+        >
+        <include layout="@layout/menu_contacts_button"></include>
+        <include layout="@layout/menu_capture_button"></include>
+        <include layout="@layout/menu_record_button"></include>
+        <include layout="@layout/menu_set_button"></include>"
+   		</LinearLayout>
+    
+   <FrameLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/container"
+        android:layout_above="@id/memu_bottom"
+        android:layout_alignLeft="@id/memu_bottom"
+        ></FrameLayout>
+
+</RelativeLayout>
