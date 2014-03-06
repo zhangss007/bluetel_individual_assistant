@@ -30,14 +30,16 @@
 	</LinearLayout>
 	
 	<Button 
+	    android:id="@+id/record_begin_btn"
 	    android:layout_gravity="center"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:background="@drawable/record_btn_begin"
+	    android:background="@drawable/record_begin_btn_selector"
 	    android:layout_marginTop="30sp"
 	    />
 	
 	<Button 
+	    android:id="@+id/upload_record_btn"
 	    android:layout_gravity="center"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
