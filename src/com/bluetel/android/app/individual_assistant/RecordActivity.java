@@ -26,7 +26,12 @@ public class RecordActivity extends Activity implements OnClickListener{
 			R.drawable.record_img_rec6,
 		} ;
 	private int[] recordPauseImages = {
-			R.drawable.record_img_pause1
+			R.drawable.record_img_pause1,
+			R.drawable.record_img_pause2,
+			R.drawable.record_img_pause3,
+			R.drawable.record_img_pause4,
+			R.drawable.record_img_pause5,
+			R.drawable.record_img_pause6,
 		} ;
 	private int startRecordingImage = 0 ;
 	private static final int RECORD_IMAGE = 6 ;
