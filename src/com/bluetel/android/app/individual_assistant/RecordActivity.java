@@ -142,7 +142,10 @@ public class RecordActivity extends Activity implements OnClickListener{
 		}
 		recordBegin.setBackgroundResource(currentRecordBtnSelector) ;
 	}
-	
+	/**
+	 * 启动一个定时器，来改变录音显示状态
+	 * @param select
+	 */
 	private void startTheRecordTimer(final int select){
 		
 		recordImTimer = new Timer() ;
