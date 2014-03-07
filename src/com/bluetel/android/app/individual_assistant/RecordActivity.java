@@ -17,13 +17,16 @@ public class RecordActivity extends Activity implements OnClickListener{
 
 	private ImageView recordImage ;
 	private Button recordBegin , uploadRecord ;
-	private  int[] startRecordImages = {
+	private  int[] recordStartImages = {
 			R.drawable.record_img_rec1,
 			R.drawable.record_img_rec2,
 			R.drawable.record_img_rec3,
 			R.drawable.record_img_rec4,
 			R.drawable.record_img_rec5,
 			R.drawable.record_img_rec6,
+		} ;
+	private int[] recordPauseImages = {
+			R.drawable.record_img_pause1
 		} ;
 	private int startRecordingImage = 0 ;
 	private static final int RECORD_IMAGE = 6 ;
@@ -48,7 +51,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 				if (msg.what == 0x952700){
 
 					Log.i("TAG", "kkkk" + startRecordingImage) ;
-					recordImage.setBackgroundResource(startRecordImages[startRecordingImage++]) ;
+					recordImage.setBackgroundResource(recordStartImages[startRecordingImage++]) ;
 					if (startRecordingImage ==  RECORD_IMAGE)
 						startRecordingImage = 0 ;
 					
