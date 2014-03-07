@@ -1,10 +1,15 @@
 package com.bluetel.android.app.individual_assistant;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -45,6 +50,13 @@ public class RecordActivity extends Activity implements OnClickListener{
 	private Timer recordImTimer = null  ;
 	private Handler handler = null ;
 	private int currentRecordBtnSelector = 0 ;
+	
+	//语音操作对象
+	private MediaPlayer mPlayer = null ;
+	private MediaRecorder mRecorder = null ;
+	//语音文件路径
+	private String fileName = null ;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -78,6 +90,10 @@ public class RecordActivity extends Activity implements OnClickListener{
 				}
 			}			
 		} ;
+		
+        //设置sdcard的路径  
+		fileName = Environment.getExternalStorageDirectory().getAbsolutePath();  
+		fileName += "/audiorecordtest.3gp"; 
 	}
 
 	private void findViews(){
@@ -127,18 +143,22 @@ public class RecordActivity extends Activity implements OnClickListener{
 		if (currentRecordBtnSelector == currentRecordBtnSelectors[0]){
 			
 			startTheRecordTimer(select) ;
+			stratRecord();
 			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
 			
 		}else if (currentRecordBtnSelector == currentRecordBtnSelectors[1]){
 			
+			stopRecord() ;
+			stopPlay() ;
 			currentRecordBtnSelector = currentRecordBtnSelectors[2] ;
 			recordImTimer.cancel() ;
-			recordImage.setBackgroundResource(R.drawable.record_img_rec) ;
+			recordImage.setBackgroundResource(R.drawable.record_img_play) ;
 		}else if (currentRecordBtnSelector == currentRecordBtnSelectors[2]){
 			
 			startRecordingImage = 0 ; 
 			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
 			startTheRecordTimer(select) ;
+			startPlay() ;
 		}
 		recordBegin.setBackgroundResource(currentRecordBtnSelector) ;
 	}
@@ -165,4 +185,80 @@ public class RecordActivity extends Activity implements OnClickListener{
 		},500,500) ;
 	}
 	
+	/**
+	 * 开始录音
+	 */
+	private void stratRecord(){
+		
+		//TODO start record 
+		mRecorder = new MediaRecorder();
+		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC) ;
+		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP) ;
+		mRecorder.setOutputFile(fileName) ;
+		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB) ;
+		try {
+			mRecorder.prepare() ;
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mRecorder.start() ;
+	}
+	
+	/**
+	 * 停止录音
+	 */
+	private void stopRecord(){
+		
+		
+		if (mRecorder != null){
+			
+			mRecorder.stop() ;
+			mRecorder.release() ;
+			mRecorder = null ;
+		}
+
+	}
+	
+	/**
+	 * 播放录音
+	 */
+	private void startPlay(){
+		
+		mPlayer = new MediaPlayer() ;
+		//录音播放完毕的监听事件
+		mPlayer.setOnCompletionListener(new OnCompletionListener() {
+			
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				// TODO Auto-generated method stub
+				recordImTimer.cancel() ;
+				recordImage.setBackgroundResource(R.drawable.record_img_play) ;
+				changeRecordBtnResource(currentRecordBtnSelectors[1]) ;
+			}
+		}) ;
+		try{  
+            mPlayer.setDataSource(fileName);  
+            mPlayer.prepare();  
+            mPlayer.start();  
+        }catch(IOException e){  
+            Log.e("TAG","播放失败");  
+        }  
+	}
+	
+	/**
+	 * 停止播放录音
+	 */
+	private void stopPlay(){
+		
+		if (mPlayer != null){
+			
+			mPlayer.stop() ;
+			mPlayer.release() ;
+			mPlayer = null ;
+		}
+	}
 }
