@@ -42,7 +42,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 	private int startRecordingImage = 0 ;
 	private static final int RECORD_IMAGE = 6 ;
 	
-	private Timer recordImTimer = new Timer()  ;
+	private Timer recordImTimer = null  ;
 	private Handler handler = null ;
 	private int currentRecordBtnSelector = 0 ;
 	@Override
@@ -63,9 +63,18 @@ public class RecordActivity extends Activity implements OnClickListener{
 				if (msg.what == 0x952700){
 
 					Log.i("TAG", "kkkk" + startRecordingImage) ;
-					recordImage.setBackgroundResource(recordStartImages[startRecordingImage++]) ;
-					if (startRecordingImage ==  RECORD_IMAGE)
-						startRecordingImage = 0 ;
+					
+					if (msg.obj.equals(currentRecordBtnSelectors[0])){
+						
+						recordImage.setBackgroundResource(recordStartImages[startRecordingImage++]) ;
+						if (startRecordingImage ==  RECORD_IMAGE)
+							startRecordingImage = 0 ;
+					}else if (msg.obj.equals(currentRecordBtnSelectors[2])){
+						
+						recordImage.setBackgroundResource(recordPauseImages[startRecordingImage++]) ;
+						if (startRecordingImage ==  RECORD_IMAGE)
+							startRecordingImage = 0 ;
+					}
 				}
 			}			
 		} ;
@@ -82,26 +91,11 @@ public class RecordActivity extends Activity implements OnClickListener{
 
 	@Override
 	public void onClick(View v) {
-		
+		int select = currentRecordBtnSelector ;
 		switch (v.getId()) {
 		case R.id.record_begin_btn:{
 			
-			changeRecordBtnResource() ;
-//			recordBegin.setSelected(true) ;
-//				recordImTimer.schedule(new TimerTask(){
-//
-//					@Override
-//					public void run() {
-//						// TODO Auto-generated method stub
-//						Log.i("TAG", "kkkkkkkkk") ;
-//						Message message = handler.obtainMessage() ;
-//						message.what = 0x952700 ;
-//						message.obj = currentRecordBtnSelector ;
-//						message.sendToTarget() ;
-//					}
-//					
-//					
-//				},500,500) ;
+				changeRecordBtnResource(select) ;
 			} 
 			
 			break;
@@ -126,21 +120,46 @@ public class RecordActivity extends Activity implements OnClickListener{
 	}
 	
 	/**
-	 * 改变录音开始录音按钮、播放按钮、停止播放按钮的切换效果
+	 * 改变录音开始录音按钮、播放按钮、停止播放按钮的切换效果以及录音状态图片的显示效果
 	 */
-	private void changeRecordBtnResource(){
+	private void changeRecordBtnResource(int select){
 		
 		if (currentRecordBtnSelector == currentRecordBtnSelectors[0]){
 			
+			startTheRecordTimer(select) ;
 			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
+			
 		}else if (currentRecordBtnSelector == currentRecordBtnSelectors[1]){
 			
 			currentRecordBtnSelector = currentRecordBtnSelectors[2] ;
-		}else {
+			recordImTimer.cancel() ;
+			recordImage.setBackgroundResource(R.drawable.record_img_rec) ;
+		}else if (currentRecordBtnSelector == currentRecordBtnSelectors[2]){
 			
+			startRecordingImage = 0 ; 
 			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
+			startTheRecordTimer(select) ;
 		}
 		recordBegin.setBackgroundResource(currentRecordBtnSelector) ;
+	}
+	
+	private void startTheRecordTimer(final int select){
+		
+		recordImTimer = new Timer() ;
+		recordImTimer.schedule(new TimerTask(){
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Log.i("TAG", "kkkkkkkkk" + currentRecordBtnSelector) ;
+				Message message = handler.obtainMessage() ;
+				message.what = 0x952700 ;
+				message.obj = select ;
+				message.sendToTarget() ;
+			}
+			
+			
+		},500,500) ;
 	}
 	
 }
