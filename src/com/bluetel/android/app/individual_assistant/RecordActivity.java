@@ -33,18 +33,25 @@ public class RecordActivity extends Activity implements OnClickListener{
 			R.drawable.record_img_pause5,
 			R.drawable.record_img_pause6,
 		} ;
+	private int[] currentRecordBtnSelectors = {
+			R.drawable.record_btn_begin,
+			R.drawable.record_btn_stop,
+			R.drawable.record_btn_play
+		} ; 
+	
 	private int startRecordingImage = 0 ;
 	private static final int RECORD_IMAGE = 6 ;
-	private static final String RECORD_BEGIN = "RECORD_BEGIN" ;
 	
 	private Timer recordImTimer = new Timer()  ;
 	private Handler handler = null ;
+	private int currentRecordBtnSelector = 0 ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.record_layout) ;
 		findViews() ;
+		init() ;
 		
 		
 		handler = new Handler(){
@@ -59,13 +66,8 @@ public class RecordActivity extends Activity implements OnClickListener{
 					recordImage.setBackgroundResource(recordStartImages[startRecordingImage++]) ;
 					if (startRecordingImage ==  RECORD_IMAGE)
 						startRecordingImage = 0 ;
-					
-					
-
 				}
-			}
-			
-			
+			}			
 		} ;
 	}
 
@@ -84,22 +86,22 @@ public class RecordActivity extends Activity implements OnClickListener{
 		switch (v.getId()) {
 		case R.id.record_begin_btn:{
 			
-			//recordImage.setBackgroundResource(R.drawable.record_img_rec1) ;
-			recordBegin.setSelected(true) ;
-				recordImTimer.schedule(new TimerTask(){
-
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						Log.i("TAG", "kkkkkkkkk") ;
-						Message message = handler.obtainMessage() ;
-						message.what = 0x952700 ;
-						message.obj = RECORD_BEGIN ;
-						message.sendToTarget() ;
-					}
-					
-					
-				},500,500) ;
+			changeRecordBtnResource() ;
+//			recordBegin.setSelected(true) ;
+//				recordImTimer.schedule(new TimerTask(){
+//
+//					@Override
+//					public void run() {
+//						// TODO Auto-generated method stub
+//						Log.i("TAG", "kkkkkkkkk") ;
+//						Message message = handler.obtainMessage() ;
+//						message.what = 0x952700 ;
+//						message.obj = currentRecordBtnSelector ;
+//						message.sendToTarget() ;
+//					}
+//					
+//					
+//				},500,500) ;
 			} 
 			
 			break;
@@ -118,5 +120,27 @@ public class RecordActivity extends Activity implements OnClickListener{
 	}
 	
 	
+	private void init(){
+		
+		currentRecordBtnSelector = currentRecordBtnSelectors[0] ;
+	}
+	
+	/**
+	 * 改变录音开始录音按钮、播放按钮、停止播放按钮的切换效果
+	 */
+	private void changeRecordBtnResource(){
+		
+		if (currentRecordBtnSelector == currentRecordBtnSelectors[0]){
+			
+			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
+		}else if (currentRecordBtnSelector == currentRecordBtnSelectors[1]){
+			
+			currentRecordBtnSelector = currentRecordBtnSelectors[2] ;
+		}else {
+			
+			currentRecordBtnSelector = currentRecordBtnSelectors[1] ;
+		}
+		recordBegin.setBackgroundResource(currentRecordBtnSelector) ;
+	}
 	
 }
