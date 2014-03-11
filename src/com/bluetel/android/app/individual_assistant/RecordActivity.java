@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.bluetel.android.app.individual_assistant.util.FileManager;
+
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -198,7 +200,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC) ;
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP) ;
-		mRecorder.setOutputFile(fileName) ;
+		mRecorder.setOutputFile(FileManager.getInstance().getOutPutMediaFile(FileManager.MEDIA_TYPE_RECORD).toString()) ;
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB) ;
 		try {
 			mRecorder.prepare() ;

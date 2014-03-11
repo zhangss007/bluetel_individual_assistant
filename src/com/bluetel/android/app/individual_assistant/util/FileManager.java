@@ -7,6 +7,13 @@ import java.util.Date;
 import android.os.Environment;
 import android.util.Log;
 
+/**
+ * 定义文件存储路径以及存储文件名定义
+ * @author zss
+ *
+ * 2014-3-11
+ * bluetel-android-app-individual-assistant
+ */
 public class FileManager {
 
 	/**
@@ -38,7 +45,7 @@ public class FileManager {
 	protected FileManager(){
 		
 		mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-	              Environment.DIRECTORY_PICTURES), "MyCameraApp");
+	              Environment.DIRECTORY_PICTURES), "MyAppStorage");
 		//创建一个文件存储目录，如果该存储目录不存在
 		if (!mediaStorageDir.exists()){
 			
@@ -74,8 +81,13 @@ public class FileManager {
 	        "VID_"+ timeStamp + ".mp4");
 //	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
 //	    	        "VID_"+ timeStamp + ".mp4" ;
-	    } else {
-	        return null;
+	    } else if (type == MEDIA_TYPE_RECORD){
+	    	
+	    	mediaFile = new File(mediaStorageDir.getPath() + File.separator + 
+	    	"REC_"+ timeStamp + ".3gp") ;
+	    }else {
+	    	
+	    	return null ;
 	    }
 
 	    return mediaFile;
