@@ -34,7 +34,7 @@ public class FTP extends Thread{
 	private static final String passwd = "123456" ;
 	private List<FTPFile> remoteFiles ;
 	private List<String> remoteFileNames ;
-	public static final String REMOTE_PATH = "broadsound" ;
+	public static final String REMOTE_PATH = "android" ;
 	private FTPClient ftpClient ;
 	private String currentPath = "" ;
 	
