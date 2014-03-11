@@ -126,7 +126,11 @@ public class RecordActivity extends Activity implements OnClickListener{
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		recordImTimer.cancel() ;
+		if (recordImTimer != null){
+			
+			recordImTimer.cancel() ;
+		}
+		
 	}
 	
 	
