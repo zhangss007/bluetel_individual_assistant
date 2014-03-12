@@ -35,11 +35,22 @@ public class FileManager {
 	
 	private static final String TAG = "TAG" ;
 	
+	private String currentUploadFileName = null ;
+	
 	private static boolean isInstance(){
 		
 		if (instance!= null)
 			return true ;
 		return false ;
+	}
+	
+	/**
+	 *获得当前上传的文件名称
+	 * @return
+	 */
+	public String getCurrentUploadFileName(){
+		
+		return currentUploadFileName ;
 	}
 	
 	protected FileManager(){
@@ -74,17 +85,19 @@ public class FileManager {
 	    if (type == MEDIA_TYPE_IMAGE){
 	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
 	        "IMG_"+ timeStamp + ".jpg");
-//	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
-//	    	        "IMG_"+ timeStamp + ".jpg" ;
+	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	    	        "IMG_"+ timeStamp + ".jpg" ;
 	    } else if(type == MEDIA_TYPE_VIDEO) {
 	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
 	        "VID_"+ timeStamp + ".mp4");
-//	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
-//	    	        "VID_"+ timeStamp + ".mp4" ;
+	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	    	        "VID_"+ timeStamp + ".mp4" ;
 	    } else if (type == MEDIA_TYPE_RECORD){
 	    	
 	    	mediaFile = new File(mediaStorageDir.getPath() + File.separator + 
 	    	"REC_"+ timeStamp + ".3gp") ;
+	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	    	        "REC_"+ timeStamp + ".3gp" ;
 	    }else {
 	    	
 	    	return null ;

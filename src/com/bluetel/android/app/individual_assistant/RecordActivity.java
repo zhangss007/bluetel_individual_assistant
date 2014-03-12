@@ -1,10 +1,13 @@
 package com.bluetel.android.app.individual_assistant;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.bluetel.android.app.individual_assistant.ftp.FTP;
 import com.bluetel.android.app.individual_assistant.util.FileManager;
+import com.bluetel.android.app.individual_assistant.util.NetWork;
 
 import android.app.Activity;
 import android.media.MediaPlayer;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class RecordActivity extends Activity implements OnClickListener{
 
@@ -56,9 +60,13 @@ public class RecordActivity extends Activity implements OnClickListener{
 	//语音操作对象
 	private MediaPlayer mPlayer = null ;
 	private MediaRecorder mRecorder = null ;
-	//语音文件路径
-	private String fileName = null ;
 	
+	//录音文件操作状态
+	public static final int RECORD_OPERATE = 0x90000 ;
+	//文件上传操作
+	public static final int FILE_UPLOAD_OPERATE = 0x90001 ;
+	
+	private FTP ftp = null ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -74,7 +82,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 			public void handleMessage(Message msg) {
 				// TODO Auto-generated method stub
 				super.handleMessage(msg);
-				if (msg.what == 0x952700){
+				if (msg.what == RECORD_OPERATE){
 
 					Log.i("TAG", "kkkk" + startRecordingImage) ;
 					
@@ -89,13 +97,32 @@ public class RecordActivity extends Activity implements OnClickListener{
 						if (startRecordingImage ==  RECORD_IMAGE)
 							startRecordingImage = 0 ;
 					}
+				}else if (msg.what == FILE_UPLOAD_OPERATE){
+					
+					
+					int ftpOperateType =(Integer) msg.obj ;
+					switch (ftpOperateType) {
+					case FTP.FTP_LOGIN_ERROR:
+						
+						break;
+					case FTP.FTP_LOGIN_SUCCESS:
+						break ;
+					case FTP.FTP_RETRIVE_SUCESS:
+						break ;
+					case FTP.FTP_UPLOAD_SUCCESS:{
+					
+							//ftp上传成功
+						    Toast.makeText(RecordActivity.this, "文件上传成功了。。。", Toast.LENGTH_SHORT).show() ;
+						}						
+						break ;
+					default:
+						break;
+					}
+					
 				}
 			}			
 		} ;
 		
-        //设置sdcard的路径  
-		fileName = Environment.getExternalStorageDirectory().getAbsolutePath();  
-		fileName += "/audiorecordtest.3gp"; 
 	}
 
 	private void findViews(){
@@ -117,7 +144,25 @@ public class RecordActivity extends Activity implements OnClickListener{
 			} 
 			
 			break;
-		case R.id.upload_record_btn:
+		case R.id.upload_record_btn:{
+			
+				if(NetWork.isNetworkAvailable(RecordActivity.this)){
+					//开始ftp进行文件上传
+					
+					String currentUploadFile = FileManager.getInstance().getCurrentUploadFileName() ;
+					if (currentUploadFile!= null){
+						
+						File file = new File(FileManager.getInstance().getCurrentUploadFileName()) ;
+						
+						ftp = new FTP(handler, "192.168.0.140") ;
+						ftp.setStoreFileInfo(file,currentUploadFile ) ;
+						ftp.setFtpTaskType(FTP.FTP_STORE) ;
+						ftp.setUpload(true) ;
+						ftp.start() ;
+						
+					}
+				}
+			}		
 			break ;
 		default:
 			break;
@@ -182,7 +227,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 				// TODO Auto-generated method stub
 				Log.i("TAG", "kkkkkkkkk" + currentRecordBtnSelector) ;
 				Message message = handler.obtainMessage() ;
-				message.what = 0x952700 ;
+				message.what = RECORD_OPERATE ;
 				message.obj = select ;
 				message.sendToTarget() ;
 			}
@@ -212,6 +257,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 			e.printStackTrace();
 		}
 		mRecorder.start() ;
+		
 	}
 	
 	/**
@@ -247,9 +293,13 @@ public class RecordActivity extends Activity implements OnClickListener{
 			}
 		}) ;
 		try{  
-            mPlayer.setDataSource(fileName);  
-            mPlayer.prepare();  
-            mPlayer.start();  
+			if (FileManager.getInstance().getCurrentUploadFileName()!= null){
+				
+				mPlayer.setDataSource(FileManager.getInstance().getCurrentUploadFileName());  
+				mPlayer.prepare();  
+				mPlayer.start();  
+			}
+
         }catch(IOException e){  
             Log.e("TAG","播放失败");  
         }  

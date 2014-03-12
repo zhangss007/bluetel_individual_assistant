@@ -13,6 +13,8 @@ import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
+import com.bluetel.android.app.individual_assistant.RecordActivity;
+
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -41,19 +43,19 @@ public class FTP extends Thread{
 	/**
 	 * ftp登录成功
 	 */
-	public static final String FTP_LOGIN_SUCCESS = "FTP_LOGIN_SUCCESS" ;
+	public static final int FTP_LOGIN_SUCCESS = 0x80000 ;
 	/**
 	 * ftp登录失败
 	 */
-	public static final String FTP_LOGIN_ERROR = "FTP_LOGIN_ERROR" ;
+	public static final int FTP_LOGIN_ERROR = 0x80001 ;
 	/**
 	 * ftp文件下载成功
 	 */
-	public static final String FTP_RETRIVE_SUCESS = "FTP_RETRIVE_SUCESS" ;
+	public static final int FTP_RETRIVE_SUCESS = 0x80002 ;
 	/**
 	 * ftp文件上传成功
 	 */
-	public static final String FTP_STORE_SUCCESS = "FTP_STORE_SUCCESS" ;
+	public static final int FTP_UPLOAD_SUCCESS = 0x80003 ;
 	
 	/**
 	 *创建ftp上传、下载任务
@@ -72,6 +74,12 @@ public class FTP extends Thread{
 	
     private File file ;
     private String filePath ; 
+    
+    
+    
+	private boolean isConnect = false ;
+	private boolean upload = false ;
+    
     
 	/**
 	 * 创建构造函数
@@ -97,47 +105,93 @@ public class FTP extends Thread{
 			ftpClient = new FTPClient() ;			
 			openConnect() ;
 			
-			if (ftpTaskType.equals(FTP_RETRIEVE)){
+
+			while(true&&isConnect){
 				
-				//进行ftp下载操作
-				FTPFile[] files = ftpClient.listFiles(REMOTE_PATH);
 				
-				for(FTPFile  file:files){
+				if (ftpTaskType != null &&upload){
 					
-					remoteFiles.add(file) ;
-					remoteFileNames.add(file.getName()) ;
-				}
-				handlerMessage(FTP_RETRIVE_SUCESS) ;
-			}else if (ftpTaskType.equals(FTP_STORE)){
-				
-				//进行ftp上传操作
-				Result result = null;
-		        try {
-		            // 上传
-		            result = uploading(file,filePath);
-		        } catch (IOException e) {
-		            e.printStackTrace();
-		        }
-		        if (result.isSucceed()) {
-		            Log.i("TAG", "uploading ok...time:" + result.getTime() + " and size:" + result.getReponse());
-		            //Toast.makeText(FTPActivity.this, "上传成功", Toast.LENGTH_SHORT).show();
-		            handlerMessage(FTP_STORE_SUCCESS) ;
-		            
-		        } else {
-		            Log.e("TAG", "uploading fail");
-		            //Toast.makeText(FTPActivity.this, "上传失败", Toast.LENGTH_SHORT).show();
-		        }
+					
+					Log.i("TAG", "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK") ;
+					if (ftpTaskType.equals(FTP_RETRIEVE)){
+						
+						//进行ftp下载操作
+						FTPFile[] files = ftpClient.listFiles(REMOTE_PATH);
+						
+						for(FTPFile  file:files){
+							
+							remoteFiles.add(file) ;
+							remoteFileNames.add(file.getName()) ;
+						}
+						handlerMessage(FTP_RETRIVE_SUCESS) ;
+					}else if (ftpTaskType.equals(FTP_STORE)){
+						
+						//进行ftp上传操作
+						Result result = null;
+				        try {
+				            // 上传
+				            result = uploading(file,filePath);
+				        } catch (IOException e) {
+				            e.printStackTrace();
+				        }
+				        if (result.isSucceed()) {
+				            Log.i("TAG", "uploading ok...time:" + result.getTime() + " and size:" + result.getReponse());
+				            
+				            handlerMessage(FTP_UPLOAD_SUCCESS) ;
+				            
+				            
+				        } else {
+				            Log.e("TAG", "uploading fail");
+				            //Toast.makeText(FTPActivity.this, "上传失败", Toast.LENGTH_SHORT).show();
+				        }
+					}
+					upload = false ;
 			}
+				
+			}
+		
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			handlerMessage(FTP_LOGIN_ERROR) ;
+			
 		}
 		
 	}
 
 
+	public boolean isUpload() {
+		return upload;
+	}
 
+
+
+
+
+	public void setUpload(boolean upload) {
+		this.upload = upload;
+	}
+
+
+
+
+
+	public boolean isConnect() {
+		
+		return isConnect;
+	}
+
+
+
+
+
+	public void setConnect(boolean isConnect) {
+		this.isConnect = isConnect;
+	}
+	
+	
+	
 	private void openConnect() throws IOException{
 		
 			//utf-8
@@ -172,14 +226,15 @@ public class FTP extends Thread{
 	            ftpClient.setFileType(org.apache.commons.net.ftp.FTP.BINARY_FILE_TYPE);
 	            System.out.println("login");
 	            handlerMessage(FTP_LOGIN_SUCCESS) ;
+	            isConnect = true ;
 	        }
 	}
 	
-	private void handlerMessage(String loginStatus){
+	private void handlerMessage(int status){
 		
 		Message message = new Message() ;
-		message.what = 0x222 ;
-		message.obj = loginStatus ;
+		message.what = RecordActivity.FILE_UPLOAD_OPERATE ;
+		message.obj = status ;
 		handler.sendMessage(message) ;
 	}
 
