@@ -3,6 +3,8 @@ package com.bluetel.android.app.individual_assistant;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bluetel.android.app.individual_assistant.bean.Contact;
+
 
 
 import android.app.Activity;

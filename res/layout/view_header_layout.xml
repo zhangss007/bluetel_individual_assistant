@@ -3,14 +3,26 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/bottom_menu_bk"
+    android:background="@drawable/title_background"
     >
-    <Button 
-        android:id="@+id/header_back_btn"
+
+    <TextView 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="返回"
-        android:background="@drawable/header_back_btn_selector"
-        android:gravity="center"
+        android:text="录音"
+        android:textColor="@android:color/white"
+        android:layout_centerInParent="true"
+        android:textSize="10pt"
         />
+    <Button
+        android:id="@+id/records_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/btn_rightbk"
+        android:autoText="true"
+        android:text="录音列表"
+        android:textColor="@android:color/white" />
+
 </RelativeLayout>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+    <PreferenceCategory 
+        android:title="分机信息"
+        >
+        <EditTextPreference
+            android:key="extenNumber"
+            android:title="号码"
+            android:summary="625"
+            android:persistent="true"
+            ></EditTextPreference>
+        <EditTextPreference
+            android:key="extenPasswd"
+            android:title="密码"
+            android:summary="***"
+            android:persistent="true"
+            ></EditTextPreference>
+        <EditTextPreference
+            android:key="serverIp"
+            android:title="服务器IP"
+            android:summary="192.168.0.140"
+            android:persistent="true"
+            ></EditTextPreference>
+    </PreferenceCategory>
+</PreferenceScreen>

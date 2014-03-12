@@ -18,6 +18,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 	private RelativeLayout contact , capture , record , set ;
 	private FrameLayout container ;
 	
+	private static MainActivity instance ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,6 +30,19 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.activity_main);
 		findViews() ;
+		instance = this ;
+	}
+	
+	static final boolean isInStance(){
+		
+		return instance!=null ;
+	}
+	
+	public static MainActivity getInstance(){			
+	
+		if(instance != null) 
+			return instance ;
+		throw new RuntimeException("MainActivity is not instantiated yet.") ;
 	}
 
 	@Override
@@ -109,4 +123,13 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		container.removeAllViews();
 		container.addView(v);
 	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		instance = null ;
+	}
+	
+	
 }

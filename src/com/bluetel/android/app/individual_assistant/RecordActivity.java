@@ -27,7 +27,7 @@ import android.widget.Toast;
 public class RecordActivity extends Activity implements OnClickListener{
 
 	private ImageView recordImage ;
-	private Button recordBegin , uploadRecord ;
+	private Button recordBegin , uploadRecord ,recordsBtn;
 	private  int[] recordStartImages = {
 			R.drawable.record_img_rec1,
 			R.drawable.record_img_rec2,
@@ -67,6 +67,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 	public static final int FILE_UPLOAD_OPERATE = 0x90001 ;
 	
 	private FTP ftp = null ;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -130,8 +131,10 @@ public class RecordActivity extends Activity implements OnClickListener{
 		recordImage = (ImageView)findViewById(R.id.record_image) ;
 		recordBegin = (Button)findViewById(R.id.record_begin_btn) ;
 		uploadRecord = (Button)findViewById(R.id.upload_record_btn) ;
+		recordsBtn = (Button)findViewById(R.id.records_btn) ;
 		recordBegin.setOnClickListener(this) ;
 		uploadRecord.setOnClickListener(this) ;
+		recordsBtn.setOnClickListener(this) ;
 	}
 
 	@Override
@@ -163,6 +166,9 @@ public class RecordActivity extends Activity implements OnClickListener{
 					}
 				}
 			}		
+			break ;
+		case R.id.records_btn:
+			MainActivity.getInstance().startViewByActivity(RecordListActivity.class, 0) ;
 			break ;
 		default:
 			break;

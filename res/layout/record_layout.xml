@@ -4,46 +4,53 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/background"
-    android:gravity="center_vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- <include layout="@layout/view_header_layout"/>-->
+
+    <include layout="@layout/view_header_layout" />
 	
 	<LinearLayout 
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
 	    android:orientation="vertical"
 	    android:layout_gravity="center"
+	     android:gravity="center_vertical"
 	    >
 	    <ImageView 
 	        android:id="@+id/record_image"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:background="@drawable/record_img_no"
+	        android:layout_gravity="center"
 	        />
 	    <TextView 
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:textSize="10pt"
 	        android:text="00:00"
+	        android:layout_gravity="center"
 	        android:textColor="@android:color/white"
+	        
 	        />
+	    
+	    <Button 
+	    	android:id="@+id/record_begin_btn"
+	    	android:layout_gravity="center"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:background="@drawable/record_btn_begin"
+	    	android:layout_marginTop="10sp"
+	    	/>
+	
+		<Button 
+	    	android:id="@+id/upload_record_btn"
+	    	android:layout_gravity="center"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:background="@drawable/upload_record_btn_selector"
+	   	 	android:layout_marginTop="30sp"
+	   	 	/>
+	    
 	</LinearLayout>
 	
-	<Button 
-	    android:id="@+id/record_begin_btn"
-	    android:layout_gravity="center"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:background="@drawable/record_btn_begin"
-	    android:layout_marginTop="30sp"
-	    />
 	
-	<Button 
-	    android:id="@+id/upload_record_btn"
-	    android:layout_gravity="center"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:background="@drawable/upload_record_btn_selector"
-	    android:layout_marginTop="50sp"
-	    />
 </LinearLayout>

@@ -41,6 +41,8 @@
         <activity android:name="com.bluetel.android.app.individual_assistant.CaptureActivity"></activity>
         <activity android:name="com.bluetel.android.app.individual_assistant.RecordActivity"></activity>
         <activity android:name="com.bluetel.android.app.individual_assistant.SetActivity"></activity>
+        <activity android:name="com.bluetel.android.app.individual_assistant.BaseActivity"></activity>
+        <activity android:name="com.bluetel.android.app.individual_assistant.RecordListActivity"></activity>
     </application>
 
 </manifest>
