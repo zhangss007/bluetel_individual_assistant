@@ -9,22 +9,27 @@ package com.bluetel.android.app.individual_assistant.bean;
  */
 public class Record {
 
-	
+	//录音文件名
 	private String fileName ;
+	//录音路径
 	private String filePath ;
+	//录音时间
 	private String recordTimer ;
-	
+	//录音记录时间
+	private String timer ;
 	
 	public Record() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Record(String fileName, String filePath, String recordTimer) {
+	public Record(String fileName, String filePath, String recordTimer, String timer) {
 		super();
 		this.fileName = fileName;
 		this.filePath = filePath;
 		this.recordTimer = recordTimer;
+		this.timer = timer ;
+		
 	}
 
 	public String getFileName() {
@@ -55,6 +60,16 @@ public class Record {
 	public void setRecordTimer(String recordTimer) {
 		
 		this.recordTimer = recordTimer;
+	}
+
+	public String getTimer() {
+		
+		return timer;
+	}
+
+	public void setTimer(String timer) {
+		
+		this.timer = timer;
 	}
 	
 	

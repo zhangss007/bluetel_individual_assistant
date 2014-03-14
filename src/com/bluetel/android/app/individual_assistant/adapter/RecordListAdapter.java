@@ -63,11 +63,17 @@ public class RecordListAdapter extends BaseAdapter{
 			
 			vHoder = (ViewHoder)arg1.getTag() ;
 		}
+		vHoder.recordFileName = (TextView)arg1.findViewById(R.id.record_file_name) ;
+		vHoder.recordTimer = (TextView)arg1.findViewById(R.id.record_timer) ;
+		
+		vHoder.recordFileName.setText(lists.get(arg0).getTimer()) ;
+		vHoder.recordTimer.setText(lists.get(arg0).getRecordTimer()) ;
 		return arg1;
 	}
 
 	static class ViewHoder {
 		
+		TextView recordFileName ;
 		TextView recordTimer ;
 	}
 	

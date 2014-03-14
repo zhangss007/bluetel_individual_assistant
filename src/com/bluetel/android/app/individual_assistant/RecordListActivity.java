@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListView;
 
 /**
  * 录音记录列表Activity
@@ -24,7 +25,7 @@ public class RecordListActivity extends Activity{
 
 	
 	private Button leftbackBtn ;
-	private GridView records ;
+	private ListView records ;
 	private List<Record> recordList  = new ArrayList<Record>() ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +38,15 @@ public class RecordListActivity extends Activity{
 	private void findViews(){
 		
 		leftbackBtn = (Button)findViewById(R.id.left_btn) ;
-		records = (GridView)findViewById(R.id.records) ;
+		records = (ListView)findViewById(R.id.records) ;
 		leftbackBtn.setOnClickListener(backBtnListener) ;
 		
 		for (int i = 0 ; i < 10 ;i ++){
 			
 			Record record = new Record() ;
+			record.setTimer("2014-03-12 14:53:59") ;
 			record.setRecordTimer("00:00") ;
+			
 			recordList.add(record) ;
 		}
 		RecordListAdapter adapter  = new RecordListAdapter(RecordListActivity.this, recordList) ;

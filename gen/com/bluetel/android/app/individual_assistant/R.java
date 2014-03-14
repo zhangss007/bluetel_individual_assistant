@@ -99,7 +99,7 @@ public final class R {
         public static final int upload_stating=0x7f020045;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a001b;
+        public static final int action_settings=0x7f0a001d;
         public static final int camera_preview=0x7f0a0008;
         public static final int capture=0x7f0a000e;
         public static final int capture_bottom=0x7f0a0005;
@@ -112,17 +112,19 @@ public final class R {
         public static final int container=0x7f0a0004;
         public static final int cp_picture=0x7f0a0007;
         public static final int cp_video=0x7f0a0006;
-        public static final int header=0x7f0a0018;
+        public static final int header=0x7f0a001a;
         public static final int image=0x7f0a000f;
         public static final int left_btn=0x7f0a0017;
         public static final int local_contacter_lv=0x7f0a000b;
         public static final int memu_bottom=0x7f0a0003;
         public static final int record=0x7f0a0012;
         public static final int record_begin_btn=0x7f0a0015;
+        public static final int record_file_name=0x7f0a0018;
         public static final int record_image=0x7f0a0014;
+        public static final int record_timer=0x7f0a0019;
         public static final int record_upload_btn=0x7f0a0002;
-        public static final int records=0x7f0a0019;
-        public static final int records_btn=0x7f0a001a;
+        public static final int records=0x7f0a001b;
+        public static final int records_btn=0x7f0a001c;
         public static final int set=0x7f0a0013;
         public static final int sip_contacter_lv=0x7f0a000c;
         public static final int text=0x7f0a0010;
