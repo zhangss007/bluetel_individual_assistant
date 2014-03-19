@@ -1,20 +1,19 @@
 package com.bluetel.android.app.individual_assistant;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import com.bluetel.android.app.individual_assistant.bean.Contact;
+import com.bluetel.android.app.individual_assistant.data.Data;
+import com.bluetel.android.app.individual_assistant.data.SipDataManager;
 
 
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,18 +21,22 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-public class ContacterActivity extends Activity implements OnClickListener{
+public class ContacterActivity extends Activity{
 
-	private List<Contact> contacts = new ArrayList<Contact>() ;
-	private ContactsAdapter contactsAdapter = null ;
-	private ListView contactsView ;
-	private Button localContactHead ,sipContactHead ;
-	private static final String CONTACT_OK = "CONTACT_OK" ;
+	private ContactersAdapter contactsAdapter = null ;
+	private ExpandableListView contactsView ;
+	private TextView netStatus ;
+	
+	private List<Map<String,Object>> mdepartList ;
+	/**
+	 * 模拟分机数据信息
+	 */
+	private Map<String,com.bluetel.android.app.individual_assistant.data.Depart> mDepartMap ;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -54,13 +57,40 @@ public class ContacterActivity extends Activity implements OnClickListener{
 				// TODO Auto-generated method stub
 				super.handleMessage(msg);
 				
-				if (msg.what == 0x0234){
+				if (msg.what == SipDataManager.SQL_QUERY){
 					
-					if (msg.obj == CONTACT_OK){
+					if ((Integer)msg.obj == SipDataManager.EXTEN_DATA_QUERY_COMPLETED){
 						
-			        	contactsAdapter = new ContactsAdapter(ContacterActivity.this) ;
-			        	contactsView.setAdapter(contactsAdapter) ;
-			            contactsAdapter.notifyDataSetChanged() ;
+						//获得部门信息
+						mdepartList = Data.getInstance().getMdepartList() ;
+					}else if ((Integer)msg.obj == SipDataManager.NET_CONNECTING_ERROR){
+						//网络连接错误
+						netStatus.setText("网络连接错误") ;
+					}
+				}else if (msg.what == SipDataManager.AMI_CONNECT){
+					
+					if ((Integer)msg.obj == SipDataManager.SIP_DATA_GET_COMPLETED){
+						
+					    //获得部门分机信息
+						netStatus.setText("网络连接ok...") ;
+						Log.i("TAG", "分机信息获得完毕了") ;
+						mDepartMap = Data.getInstance().getmDepartMap() ;
+						if (mDepartMap != null && mdepartList != null){
+							
+							contactsAdapter= new ContactersAdapter(ContacterActivity.this) ;
+							contactsView.setAdapter(contactsAdapter) ;
+							contactsAdapter.notifyDataSetInvalidated() ;
+							expandGroup(mdepartList.size()) ;
+							
+						}
+					}else if ((Integer)msg.obj == SipDataManager.EXTEN_STATUS_UPDATE){
+						
+						contactsAdapter.notifyDataSetChanged() ;
+						expandGroup(mdepartList.size()) ;
+					}else if ((Integer)msg.obj == SipDataManager.NET_CONNECTED_ERROR){
+						
+						//网络连接错误
+						netStatus.setText("网络连接错误") ;
 					}
 				}
 			}
@@ -68,88 +98,92 @@ public class ContacterActivity extends Activity implements OnClickListener{
 			
 		} ;
 		
-		new Thread(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				super.run();
-				
-				Cursor cur = getContentResolver().query(  
-		                ContactsContract.Contacts.CONTENT_URI,  
-		                null,  
-		                null,  
-		                null,  
-		                ContactsContract.Contacts.DISPLAY_NAME  
-		                        + " COLLATE LOCALIZED ASC");  
-		        // 循环遍历  
-		        if (cur.moveToFirst()) {  
-		            int idColumn = cur.getColumnIndex(ContactsContract.Contacts._ID);  
-		  
-		            int displayNameColumn = cur  
-		                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);  
-		  
-		            do {  
-		            	Contact contact = new Contact() ;
-		                // 获得联系人的ID号  
-		                String contactId = cur.getString(idColumn);  
-		                // 获得联系人姓名  
-		                String disPlayName = cur.getString(displayNameColumn);  
-		                  
-		               
-		                
-		                // 查看该联系人有多少个电话号码。如果没有这返回值为0  
-		                int phoneCount = cur  
-		                        .getInt(cur  
-		                                .getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));  
-		                Log.i("username", disPlayName);  
-		                contact.setName(disPlayName) ;
-		                if (phoneCount > 0) {  
-		                    // 获得联系人的电话号码  
-		                    Cursor phones = getContentResolver().query(  
-		                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,  
-		                            null,  
-		                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID  
-		                                    + " = " + contactId, null, null);  
-		                    if (phones.moveToFirst()) {  
-		                        do {  
-		                            // 遍历所有的电话号码  
-		                            String phoneNumber = phones  
-		                                    .getString(phones  
-		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));  
-		                            String phoneType = phones  
-		                                    .getString(phones  
-		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));  
-		                            Log.i("phoneNumber", phoneNumber);  
-		                            Log.i("phoneType", phoneType);  
-		                            contact.setNumber(phoneNumber) ;
-		                        } while (phones.moveToNext());   
-		                    }  
-		                } 
-		                if (contact.getName() != null && contact.getNumber() != null){
-		                	
-		                	contacts.add(contact) ;
-		                }
-		                
-		                Log.i("TAG", ".......................................................") ;
-		            } while (cur.moveToNext());  
-		            
-		        }  
-		        if (!contacts.isEmpty()){
-		        	
-		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为--------" + contacts.size()) ;
-		        	Message message = handler.obtainMessage() ;
-		        	message.what = 0x0234 ;
-		        	message.obj = CONTACT_OK ;
-		        	message.sendToTarget();
-		        }else {
-		        	
-		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为00000--------") ;
-		        }
-			}
 		
-			
-		}.start() ;
+		SipDataManager dataManager = new SipDataManager(handler) ;
+		dataManager.startGetExtenInfoByQuery() ;
+		
+//		new Thread(){
+//
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				super.run();
+//				
+//				Cursor cur = getContentResolver().query(  
+//		                ContactsContract.Contacts.CONTENT_URI,  
+//		                null,  
+//		                null,  
+//		                null,  
+//		                ContactsContract.Contacts.DISPLAY_NAME  
+//		                        + " COLLATE LOCALIZED ASC");  
+//		        // 循环遍历  
+//		        if (cur.moveToFirst()) {  
+//		            int idColumn = cur.getColumnIndex(ContactsContract.Contacts._ID);  
+//		  
+//		            int displayNameColumn = cur  
+//		                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);  
+//		  
+//		            do {  
+//		            	Contact contact = new Contact() ;
+//		                // 获得联系人的ID号  
+//		                String contactId = cur.getString(idColumn);  
+//		                // 获得联系人姓名  
+//		                String disPlayName = cur.getString(displayNameColumn);  
+//		                  
+//		               
+//		                
+//		                // 查看该联系人有多少个电话号码。如果没有这返回值为0  
+//		                int phoneCount = cur  
+//		                        .getInt(cur  
+//		                                .getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));  
+//		                Log.i("username", disPlayName);  
+//		                contact.setName(disPlayName) ;
+//		                if (phoneCount > 0) {  
+//		                    // 获得联系人的电话号码  
+//		                    Cursor phones = getContentResolver().query(  
+//		                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,  
+//		                            null,  
+//		                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID  
+//		                                    + " = " + contactId, null, null);  
+//		                    if (phones.moveToFirst()) {  
+//		                        do {  
+//		                            // 遍历所有的电话号码  
+//		                            String phoneNumber = phones  
+//		                                    .getString(phones  
+//		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));  
+//		                            String phoneType = phones  
+//		                                    .getString(phones  
+//		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));  
+//		                            Log.i("phoneNumber", phoneNumber);  
+//		                            Log.i("phoneType", phoneType);  
+//		                            contact.setNumber(phoneNumber) ;
+//		                        } while (phones.moveToNext());   
+//		                    }  
+//		                } 
+//		                if (contact.getName() != null && contact.getNumber() != null){
+//		                	
+//		                	contacts.add(contact) ;
+//		                }
+//		                
+//		                Log.i("TAG", ".......................................................") ;
+//		            } while (cur.moveToNext());  
+//		            
+//		        }  
+//		        if (!contacts.isEmpty()){
+//		        	
+//		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为--------" + contacts.size()) ;
+//		        	Message message = handler.obtainMessage() ;
+//		        	message.what = 0x0234 ;
+//		        	message.obj = CONTACT_OK ;
+//		        	message.sendToTarget();
+//		        }else {
+//		        	
+//		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为00000--------") ;
+//		        }
+//			}
+//		
+//			
+//		}.start() ;
 	
 		
 		
@@ -157,96 +191,145 @@ public class ContacterActivity extends Activity implements OnClickListener{
     }  
 
 	
-	private void findView(){
+	//设置默认展开
+	private void expandGroup(int size){
 		
-		localContactHead = (Button)findViewById(R.id.local_contacter_lv) ;
-		sipContactHead   = (Button)findViewById(R.id.sip_contacter_lv) ;
-		contactsView = (ListView)findViewById(R.id.contact_view) ;
-		
-		localContactHead.setOnClickListener(this) ;
-		sipContactHead.setOnClickListener(this) ;
-		localContactHead.setSelected(true) ;
+		for (int i = 0 ; i < size ; i++)
+			contactsView.expandGroup(i);
 	}
 	
-	public class ContactsAdapter extends BaseAdapter{
+	private void findView(){
+		
+		contactsView = (ExpandableListView)findViewById(R.id.contact_view) ;
+		netStatus = (TextView)findViewById(R.id.net_status) ;		
+	}
+	
+	
+	public class ContactersAdapter extends BaseExpandableListAdapter{
 
 		private LayoutInflater inflater ;
-		
-		public ContactsAdapter(Context context){
-			
+		public ContactersAdapter(Context context) {
+			// TODO Auto-generated constructor stub
 			inflater = LayoutInflater.from(context) ;
 		}
 		
+		
 		@Override
-		public int getCount() {
+		public Object getChild(int groupPosition, int childPosition) {
 			// TODO Auto-generated method stub
-			return contacts.size();
+			if (mDepartMap.get(mdepartList.get(groupPosition).get("Depart")) == null)
+				return null ;
+			return mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition);
 		}
 
 		@Override
-		public Object getItem(int arg0) {
+		public long getChildId(int groupPosition, int childPosition) {
 			// TODO Auto-generated method stub
-			return contacts.get(arg0);
+			return childPosition;
 		}
 
 		@Override
-		public long getItemId(int position) {
+		public View getChildView(int groupPosition, int childPosition,
+				boolean isLastChild, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// TODO Auto-generated method stub
-			ViewHoder vHoder = null ;
-			if (convertView == null ){
-				vHoder = new ViewHoder() ;
-				convertView = inflater.inflate(R.layout.contact_item, null ) ;
-				convertView.setTag(vHoder) ;
-			}else{
+			ViewChildHoder childHoder = null ;
+			if (convertView == null){
 				
-				vHoder = (ViewHoder)convertView.getTag() ;
-			}
-			if (contacts.get(position).getNumber()!= null && contacts.get(position).getName() != null ){
+				childHoder = new ViewChildHoder() ;
+				convertView = inflater.inflate(R.layout.contact_child_item, null) ;
+				convertView.setTag(childHoder) ;
+			}else {
 				
-				vHoder.contactInfo = (TextView)convertView.findViewById(R.id.contacts_txt) ;
-				vHoder.contactAddress = (TextView)convertView.findViewById(R.id.contact_address) ;
-				vHoder.contactInfo.setText(contacts.get(position).getName()) ;
-				vHoder.contactAddress.setText(contacts.get(position).getNumber()) ;
+				childHoder = (ViewChildHoder) convertView.getTag() ;
 			}
-			//
+			childHoder.extenName = (TextView)convertView.findViewById(R.id.exten_name) ;
+			childHoder.extenNumber = (TextView)convertView.findViewById(R.id.exten_number) ;
+			if(mDepartMap.get(mdepartList.get(groupPosition).get("Depart")) != null){
+				
+				String extenName = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getName() ;
+				String extenNumber = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getNumber();
+				String status = com.bluetel.android.app.individual_assistant.util.ExtenStatus.getExtenStatus(mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getStatus()) ;
+				
+				childHoder.extenName.setText(extenName) ;
+				childHoder.extenNumber.setText(extenNumber + "[" + status +"]") ;
+			}
 			return convertView;
 		}
-		
-		
-	}
-	
-	static class ViewHoder {
-		
-		TextView contactInfo ;
-		TextView contactAddress ;
-	}
 
-	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		resetContactHeadSelector() ;
-		switch (v.getId()) {
-		case R.id.local_contacter_lv:
-			localContactHead.setSelected(true) ;
-			break;
-		case R.id.sip_contacter_lv:
-			sipContactHead.setSelected(true) ;
-			break ;
-		default:
-			break;
+		@Override
+		public int getChildrenCount(int groupPosition) {
+			// TODO Auto-generated method stub
+			if (mDepartMap.get(mdepartList.get(groupPosition).get("Depart")) == null)
+				return 0 ;
+			return mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().size();
 		}
+
+		@Override
+		public Object getGroup(int groupPosition) {
+			// TODO Auto-generated method stub
+			return mdepartList.get(groupPosition).get("Depart");
+		}
+
+		@Override
+		public int getGroupCount() {
+			// TODO Auto-generated method stub
+			return mdepartList.size();
+		}
+
+		@Override
+		public long getGroupId(int groupPosition) {
+			// TODO Auto-generated method stub
+			return groupPosition;
+		}
+
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded,
+				View convertView, ViewGroup parent) {
+			
+			ViewGroupHoder groupHoder = null ;
+			if (convertView == null){
+				
+				groupHoder = new ViewGroupHoder() ;
+				convertView = inflater.inflate(R.layout.connect_group_item, null) ;
+				convertView.setTag(groupHoder) ;
+			}else {
+				
+			    groupHoder = (ViewGroupHoder) convertView.getTag() ;
+			}
+			
+			groupHoder.departName = (TextView)convertView.findViewById(R.id.depart) ;
+			groupHoder.departName.setText((String)mdepartList.get(groupPosition).get("Depart")) ;
+			return convertView;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean isChildSelectable(int groupPosition, int childPosition) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		
 	}
 	
-	private void resetContactHeadSelector(){
+	
+	static class ViewGroupHoder {
 		
-		localContactHead.setSelected(false) ;
-		sipContactHead.setSelected(false) ;
+		TextView departName ;
 	}
+	
+	static class ViewChildHoder {
+		
+		TextView extenName ;
+		TextView extenNumber ;
+	}
+	
+	
+
 	
 }
