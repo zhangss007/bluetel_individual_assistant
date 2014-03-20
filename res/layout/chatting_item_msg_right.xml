@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+        <ImageView 
+            android:id="@+id/iv_chart_head"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/ic_default_icon_1"
+            />
+        <TextView 
+            android:id="@+id/tv_chat_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/iv_chart_head"
+            android:background="@drawable/chat_to_bg" 
+	        android:textSize="15sp"
+	        android:textColor="#ff000000"
+	        android:gravity="left|center"
+	        android:minHeight="50dp" 
+	        android:lineSpacingExtra="2dp"
+	        android:clickable="true"
+	        android:focusable="true"
+            />
+      <!--  <TextView 
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_chart_head"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/tv_chat_content"
+            android:text="人马"
+            style="@style/chat_text_name_style"
+            />
+        -->
+    </RelativeLayout>
+</LinearLayout>

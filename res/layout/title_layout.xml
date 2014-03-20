@@ -1,0 +1,27 @@
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/title_background"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <TextView
+        android:id="@+id/title" 
+     	android:layout_width="wrap_content"
+     	android:layout_height="wrap_content"
+     	android:textColor="@android:color/white"
+        android:layout_centerInParent="true"
+        android:textSize="10pt"
+        android:text="lkllkl"
+    	/>
+    <Button 
+        android:id="@+id/left_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="返回"
+        android:textColor="@android:color/white"
+        android:layout_alignParentLeft="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/btn_liftbk"
+        android:visibility="gone"
+        />
+</RelativeLayout>

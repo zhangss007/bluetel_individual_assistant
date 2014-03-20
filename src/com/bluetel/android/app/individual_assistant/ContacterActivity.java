@@ -10,6 +10,7 @@ import com.bluetel.android.app.individual_assistant.data.SipDataManager;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,13 +26,15 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ContacterActivity extends Activity{
 
 	private ContactersAdapter contactsAdapter = null ;
 	private ExpandableListView contactsView ;
-	private TextView netStatus ;
+	private TextView title , netStatus ;
 	
 	private List<Map<String,Object>> mdepartList ;
 	/**
@@ -44,8 +47,8 @@ public class ContacterActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);   
-		//设置Activity全屏显示
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
+//		//设置Activity全屏显示
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
 		//设置Activity竖屏显示
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.contacts_layout) ;
@@ -86,8 +89,12 @@ public class ContacterActivity extends Activity{
 						}
 					}else if ((Integer)msg.obj == SipDataManager.EXTEN_STATUS_UPDATE){
 						
-						contactsAdapter.notifyDataSetChanged() ;
-						expandGroup(mdepartList.size()) ;
+						if (contactsAdapter != null){
+							
+							contactsAdapter.notifyDataSetChanged() ;
+							expandGroup(mdepartList.size()) ;
+						}
+
 					}else if ((Integer)msg.obj == SipDataManager.NET_CONNECTED_ERROR){
 						
 						//网络连接错误
@@ -202,7 +209,11 @@ public class ContacterActivity extends Activity{
 	private void findView(){
 		
 		contactsView = (ExpandableListView)findViewById(R.id.contact_view) ;
+		title = (TextView)findViewById(R.id.title) ;
 		netStatus = (TextView)findViewById(R.id.net_status) ;	
+		
+		title.setText(getResources().getString(R.string.menu_title_contacter)) ;
+		
 		contactsView.setOnGroupClickListener(new OnGroupClickListener() {
 			
 			@Override
@@ -240,7 +251,7 @@ public class ContacterActivity extends Activity{
 		}
 
 		@Override
-		public View getChildView(int groupPosition, int childPosition,
+		public View getChildView(final int groupPosition, int childPosition,
 				boolean isLastChild, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
 			ViewChildHoder childHoder = null ;
@@ -255,14 +266,32 @@ public class ContacterActivity extends Activity{
 			}
 			childHoder.extenName = (TextView)convertView.findViewById(R.id.exten_name) ;
 			childHoder.extenNumber = (TextView)convertView.findViewById(R.id.exten_number) ;
+			childHoder.chat = (ImageView)convertView.findViewById(R.id.chat_right) ;
 			if(mDepartMap.get(mdepartList.get(groupPosition).get("Depart")) != null){
 				
-				String extenName = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getName() ;
-				String extenNumber = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getNumber();
+				final String extenName = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getName() ;
+				final String extenNumber = mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getNumber();
 				String status = com.bluetel.android.app.individual_assistant.util.ExtenStatus.getExtenStatus(mDepartMap.get(mdepartList.get(groupPosition).get("Depart")).getcDepartList().get(childPosition).getStatus()) ;
 				
 				childHoder.extenName.setText(extenName) ;
 				childHoder.extenNumber.setText(extenNumber + "[" + status +"]") ;
+				
+				childHoder.chat.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						Toast.makeText(ContacterActivity.this, extenName + "[" + extenNumber + "]", Toast.LENGTH_SHORT).show() ;
+						Intent intent = new Intent(ContacterActivity.this, ChatActivity.class) ;
+						Bundle bundle = new Bundle() ;
+						bundle.putString("ExtenName", extenName) ;
+						bundle.putString("ExtenNumber", extenNumber) ;
+						bundle.putString("Depart", mdepartList.get(groupPosition).get("Depart").toString()) ;
+						intent.putExtras(bundle) ;
+						startActivity(intent) ;
+					}
+				}) ;
+				
 			}
 			return convertView;
 		}
@@ -338,6 +367,7 @@ public class ContacterActivity extends Activity{
 		
 		TextView extenName ;
 		TextView extenNumber ;
+		ImageView chat ;
 	}
 	
 	

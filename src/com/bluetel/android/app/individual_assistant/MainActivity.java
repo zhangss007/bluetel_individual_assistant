@@ -37,9 +37,9 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		super.onCreate(savedInstanceState);
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);   
-		//设置Activity全屏显示
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
-		//设置Activity横屏显示
+//		//设置Activity全屏显示
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
+		//设置Activity竖屏显示
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.activity_main);
 		findViews() ;

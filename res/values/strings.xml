@@ -10,6 +10,10 @@
     <string name="button_record">录音</string>
     <string name="button_set">设置</string>
     
+    <string name="menu_title_contacter">通讯录</string>
+    <string name="menu_title_record">录音</string>
+    <string name="menu_title_set">设置</string>
+    
     <string name="haved_camera">该设备上有摄像头。。。。。</string>
     <string name="no_camera">该设备上不存在摄像头。。。。。</string>
     
