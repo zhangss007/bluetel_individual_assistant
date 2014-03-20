@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
 
 public class ContacterActivity extends Activity{
@@ -201,7 +202,17 @@ public class ContacterActivity extends Activity{
 	private void findView(){
 		
 		contactsView = (ExpandableListView)findViewById(R.id.contact_view) ;
-		netStatus = (TextView)findViewById(R.id.net_status) ;		
+		netStatus = (TextView)findViewById(R.id.net_status) ;	
+		contactsView.setOnGroupClickListener(new OnGroupClickListener() {
+			
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+				// TODO Auto-generated method stub
+				//expandGroup(mdepartList.size()) ;
+				return false;
+			}
+		}) ;
 	}
 	
 	

@@ -1,15 +1,25 @@
 package com.bluetel.android.app.individual_assistant;
 
+import org.linphone.mediastream.Log;
+
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
+
+import android.R.string;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.ActivityGroup;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
@@ -19,6 +29,9 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 	private FrameLayout container ;
 	
 	private static MainActivity instance ;
+	
+	private SharedPreferences mPref;
+	private boolean accountCreated = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,7 +43,9 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.activity_main);
 		findViews() ;
+		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		instance = this ;
+		logIn("629", "629", "192.168.0.140", true) ;
 	}
 	
 	static final boolean isInStance(){
@@ -38,7 +53,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		return instance!=null ;
 	}
 	
-	public static MainActivity getInstance(){			
+	public static synchronized MainActivity getInstance(){			
 	
 		if(instance != null) 
 			return instance ;
@@ -129,6 +144,89 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		instance = null ;
+	}
+	
+	public void logIn(String username, String password, String domain, boolean sendEcCalibrationResult) {
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (imm != null && getCurrentFocus() != null) {
+			imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		}
+
+        saveCreatedAccount(username, password, domain);
+		LinphoneManager.getInstance().initializePayloads();
+
+		try {
+			LinphoneManager.getInstance().initFromConf();
+		} catch (Throwable e) {
+			Log.e(e, "Error while initializing from config in first login activity");
+			//Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show();
+		}
+
+		if (LinphoneManager.getLc().getDefaultProxyConfig() != null) {
+			//launchEchoCancellerCalibration(sendEcCalibrationResult);
+		}
+	}
+	
+	public void saveCreatedAccount(String username, String password, String domain) {
+		if (accountCreated)
+			return;
+		
+		int newAccountId = mPref.getInt(getString(R.string.pref_extra_accounts), 0);
+		if (newAccountId == -1)
+			newAccountId = 0;
+		writePreference(R.string.pref_extra_accounts, newAccountId+1);
+		
+		if (newAccountId == 0) {
+			writePreference(R.string.pref_username_key, username);
+			writePreference(R.string.pref_passwd_key, password);
+			writePreference(R.string.pref_domain_key, domain);
+			
+			boolean isMainAccountLinphoneDotOrg = domain.equals(getString(R.string.default_domain));
+			if (isMainAccountLinphoneDotOrg) {
+				if (getResources().getBoolean(R.bool.disable_all_security_features_for_markets)) {
+					writePreference(R.string.pref_proxy_key, domain + ":5228");
+					writePreference(R.string.pref_transport_key, getString(R.string.pref_transport_tcp_key));
+				}
+				else {
+					writePreference(R.string.pref_proxy_key, domain + ":5223");
+					writePreference(R.string.pref_transport_key, getString(R.string.pref_transport_tls_key));
+				}
+				
+				writePreference(R.string.pref_expire_key, "604800"); // 3600*24*7
+				writePreference(R.string.pref_enable_outbound_proxy_key, true);
+				writePreference(R.string.pref_stun_server_key, getString(R.string.default_stun));
+				writePreference(R.string.pref_ice_enable_key, true);
+				writePreference(R.string.pref_push_notification_key, true);
+			}
+		} else {
+			writePreference(getString(R.string.pref_username_key) + newAccountId, username);
+			writePreference(getString(R.string.pref_passwd_key) + newAccountId, password);
+			writePreference(getString(R.string.pref_domain_key) + newAccountId, domain);
+		}
+		String forcedProxy=getResources().getString(R.string.setup_forced_proxy);
+		if (!TextUtils.isEmpty(forcedProxy)) {
+			writePreference(R.string.pref_enable_outbound_proxy_key, true);
+			writePreference(R.string.pref_proxy_key, forcedProxy);
+		}
+		accountCreated = true;
+	}
+	
+	
+	
+	private void writePreference(int key, String value) {
+		mPref.edit().putString(getString(key), value).commit();
+	}
+	
+	private void writePreference(String key, String value) {
+		mPref.edit().putString(key, value).commit();
+	}
+	
+	private void writePreference(int key, int value) {
+		mPref.edit().putInt(getString(key), value).commit();
+	}
+	
+	private void writePreference(int key, boolean value) {
+		mPref.edit().putBoolean(getString(key), value).commit();
 	}
 	
 	

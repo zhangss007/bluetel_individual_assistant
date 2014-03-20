@@ -1,18 +1,31 @@
-<LinearLayout
+<RelativeLayout
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
     
     <ImageView
+        android:id="@+id/image"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/ic_default_icon_3" />
+        android:src="@drawable/ic_default_icon_3"
+        android:layout_alignParentLeft="true" 
+        />
     
+    <ImageView 
+        android:id="@+id/right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/right"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        />
     <LinearLayout 
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/image"
+        android:layout_toLeftOf="@id/right"
         >
        	<TextView 
         	android:id="@+id/exten_name"
@@ -28,5 +41,7 @@
        	    android:textColor="#999999"
        	    />
     </LinearLayout>
+    
+    
 
-</LinearLayout>
+</RelativeLayout>
