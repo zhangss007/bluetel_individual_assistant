@@ -1,8 +1,24 @@
 package com.bluetel.android.app.individual_assistant;
 
+import static android.content.Intent.ACTION_MAIN;
+
+import java.util.List;
+
+import org.linphone.core.LinphoneAddress;
+import org.linphone.core.LinphoneCall;
+import org.linphone.core.LinphoneCall.State;
+import org.linphone.core.LinphoneChatMessage;
+import org.linphone.core.LinphoneCore.RegistrationState;
+import org.linphone.core.LinphoneProxyConfig;
 import org.linphone.mediastream.Log;
 
+import com.bluetel.android.app.individual_assistant.linphone.ChatMessage;
+import com.bluetel.android.app.individual_assistant.linphone.ChatStorage;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnCallStateChangedListener;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnMessageReceivedListener;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnRegistrationStateChangedListener;
+import com.bluetel.android.app.individual_assistant.service.MainService;
 
 import android.R.string;
 import android.os.Bundle;
@@ -22,8 +38,12 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
-public class MainActivity extends ActivityGroup implements OnClickListener{
+public class MainActivity extends ActivityGroup implements OnClickListener,								
+									LinphoneOnCallStateChangedListener,
+									LinphoneOnMessageReceivedListener,
+									LinphoneOnRegistrationStateChangedListener{
 
 	private RelativeLayout contact , capture , record , set ;
 	private FrameLayout container ;
@@ -45,7 +65,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		findViews() ;
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		instance = this ;
-		logIn("629", "629", "192.168.0.140", true) ;
+		logIn("625", "625", "192.168.0.140", true) ;
 	}
 	
 	static final boolean isInStance(){
@@ -125,6 +145,13 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 		resetMenuButtonSelector() ;
 		contact.setSelected(true) ;
 		startViewByActivity(ContacterActivity.class,R.id.contacts) ;
+		if (!MainService.isReady())  {
+			startService(new Intent(ACTION_MAIN).setClass(this, MainService.class));
+		}
+
+		// Remove to avoid duplication of the listeners
+		LinphoneManager.removeListener(this);
+		LinphoneManager.addListener(this);
 	}
 
 	protected void startViewByActivity(Class<?> clazz, int checkid) {
@@ -230,4 +257,71 @@ public class MainActivity extends ActivityGroup implements OnClickListener{
 	}
 	
 	
+	public void startChatRoomActivity(String extenName, String extenNumber, String departName){
+		
+		String numberOrAdress = extenNumber ;
+		String sipUri = numberOrAdress ;
+		LinphoneProxyConfig lpc = LinphoneManager.getLc().getDefaultProxyConfig();
+		if (lpc != null){
+			
+			if (!numberOrAdress.startsWith("sip:")){
+				
+				numberOrAdress = "sip:" + numberOrAdress ;
+			}
+			
+			if (!sipUri.contains("@"))
+				sipUri = numberOrAdress + "@" + lpc.getDomain();
+		}
+		
+		
+		Intent intent = new Intent(MainActivity.this, ChatActivity.class) ;
+		Bundle bundle = new Bundle() ;
+		bundle.putString("ExtenName", extenName) ;
+		bundle.putString("ExtenNumber", extenNumber) ;
+		bundle.putString("SipUri", sipUri) ;
+		bundle.putString("Depart", departName) ;
+		intent.putExtras(bundle) ;
+		startActivity(intent) ;
+	}
+	
+	public List<ChatMessage> getChatMessages(String correspondent) {
+		return getChatStorage().getMessages(correspondent);
+	}
+
+	public void removeFromChatList(String sipUri) {
+		getChatStorage().removeDiscussion(sipUri);
+	}
+
+	public void removeFromDrafts(String sipUri) {
+		getChatStorage().deleteDraft(sipUri);
+	}
+	
+	
+	public ChatStorage getChatStorage() {
+		if (LinphoneManager.getInstance().chatStorage == null) {
+			return new ChatStorage(this);
+		}
+		return LinphoneManager.getInstance().chatStorage;
+	}
+
+	@Override
+	public void onMessageReceived(LinphoneAddress from,
+			LinphoneChatMessage message, int id) {
+		// TODO Auto-generated method stub
+		Log.i("TAG","收到了信息了啊  。。。。。。") ;
+		
+	}
+
+	@Override
+	public void onRegistrationStateChanged(RegistrationState state) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCallStateChanged(LinphoneCall call, State state,
+			String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -43,6 +43,7 @@ import org.linphone.mediastream.video.capture.hwconf.Hacks;
 
 import com.bluetel.android.app.individual_assistant.R;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnAudioChangedListener;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnMessageReceivedListener;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneServiceListener;
 
 import static com.bluetel.android.app.individual_assistant.R.string.pref_codec_amr_key;
@@ -68,6 +69,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.Vibrator;
@@ -121,7 +123,15 @@ public class LinphoneManager implements LinphoneCoreListener{
 		simpleListeners.remove(listener);
 	}
 	
-	
+	public static synchronized LinphoneCore getLcIfManagerNotDestroyedOrNull() {
+		if (sExited) {
+			// Can occur if the UI thread play a posted event but in the meantime the LinphoneManager was destroyed
+			// Ex: stop call and quickly terminate application.
+			Log.w("Trying to get linphone core while LinphoneManager already destroyed");
+			return null;
+		}
+		return getLc();
+	}
 	
 	private ListenerDispatcher mListenerDispatcher;
 	
@@ -919,7 +929,36 @@ public class LinphoneManager implements LinphoneCoreListener{
 	@Override
 	public void messageReceived(LinphoneCore lc, LinphoneChatRoom cr,
 			LinphoneChatMessage message) {
-		// TODO Auto-generated method stub
+		
+		if (mServiceContext.getResources().getBoolean(R.bool.disable_chat)) {
+			return;
+		}
+		
+		Log.i("TAG", "收到短信了 啊 。。。。。。。。。在LinphoneManager中哦。。。。。。") ;
+		
+		LinphoneAddress from = message.getFrom();
+
+		String textMessage = message.getText();
+		String url = message.getExternalBodyUrl();
+		String notificationText = null;
+		int id = -1;
+		if (textMessage != null && textMessage.length() > 0) {
+			id = chatStorage.saveTextMessage(from.asStringUriOnly(), "", textMessage, message.getTime());
+			notificationText = textMessage;
+		} else if (url != null && url.length() > 0) {
+			//Bitmap bm = ChatFragment.downloadImage(url);
+			id = chatStorage.saveImageMessage(from.asStringUriOnly(), "", null, message.getExternalBodyUrl(), message.getTime());
+			notificationText = url;
+		}
+		
+		try {
+			LinphoneUtils.findUriPictureOfContactAndSetDisplayName(from, mServiceContext.getContentResolver());
+			//LinphoneService.instance().displayMessageNotification(from.asStringUriOnly(), from.getDisplayName(), notificationText);
+		} catch (Exception e) { }
+
+		for (LinphoneSimpleListener listener : getSimpleListeners(LinphoneOnMessageReceivedListener.class)) {
+			((LinphoneOnMessageReceivedListener) listener).onMessageReceived(from, message, id);
+		}
 		
 	}
 
@@ -942,6 +981,8 @@ public class LinphoneManager implements LinphoneCoreListener{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 
 	@Override
 	public void show(LinphoneCore lc) {
@@ -1156,6 +1197,20 @@ public class LinphoneManager implements LinphoneCoreListener{
 	}
 	
 	
+	public void adjustVolume(int i) {
+		if (Build.VERSION.SDK_INT<15) {
+			int oldVolume = mAudioManager.getStreamVolume(LINPHONE_VOLUME_STREAM);
+			int maxVolume = mAudioManager.getStreamMaxVolume(LINPHONE_VOLUME_STREAM);
+
+			int nextVolume = oldVolume +i;
+			if (nextVolume > maxVolume) nextVolume = maxVolume;
+			if (nextVolume < 0) nextVolume = 0;
+
+			mLc.setPlaybackGain((nextVolume - maxVolume)* dbStep);
+		} else
+			// starting from ICS, volume must be adjusted by the application, at least for STREAM_VOICE_CALL volume stream
+			mAudioManager.adjustStreamVolume(LINPHONE_VOLUME_STREAM, i<0?AudioManager.ADJUST_LOWER:AudioManager.ADJUST_RAISE, 0);
+	}
 	
 	
 	public void onCallStateChanged(LinphoneCall call, State state, String message) {

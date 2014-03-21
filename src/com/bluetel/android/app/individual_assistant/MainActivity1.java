@@ -1,11 +1,27 @@
 package com.bluetel.android.app.individual_assistant;
 
+import static android.content.Intent.ACTION_MAIN;
+
+import org.linphone.core.LinphoneAddress;
+import org.linphone.core.LinphoneCall;
+import org.linphone.core.LinphoneCall.State;
+import org.linphone.core.LinphoneChatMessage;
+import org.linphone.core.LinphoneCore.RegistrationState;
+
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnCallStateChangedListener;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnMessageReceivedListener;
+import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnRegistrationStateChangedListener;
+import com.bluetel.android.app.individual_assistant.service.MainService;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity1 extends Activity implements OnClickListener{
 
@@ -27,6 +43,14 @@ public class MainActivity1 extends Activity implements OnClickListener{
 		connects.setOnClickListener(this) ;
 		capture.setOnClickListener(this) ;
 		record.setOnClickListener(this) ;
+	}
+
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
 	}
 
 	@Override
@@ -52,4 +76,5 @@ public class MainActivity1 extends Activity implements OnClickListener{
 		Intent intent = new Intent(MainActivity1.this,clazz) ;
 		startActivity(intent) ;
 	}
+
 }

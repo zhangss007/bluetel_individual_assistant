@@ -282,13 +282,8 @@ public class ContacterActivity extends Activity{
 					public void onClick(View v) {
 						// TODO Auto-generated method stub
 						Toast.makeText(ContacterActivity.this, extenName + "[" + extenNumber + "]", Toast.LENGTH_SHORT).show() ;
-						Intent intent = new Intent(ContacterActivity.this, ChatActivity.class) ;
-						Bundle bundle = new Bundle() ;
-						bundle.putString("ExtenName", extenName) ;
-						bundle.putString("ExtenNumber", extenNumber) ;
-						bundle.putString("Depart", mdepartList.get(groupPosition).get("Depart").toString()) ;
-						intent.putExtras(bundle) ;
-						startActivity(intent) ;
+						if (MainActivity.isInStance())
+							MainActivity.getInstance().startChatRoomActivity(extenName, extenNumber ,mdepartList.get(groupPosition).get("Depart").toString()) ;
 					}
 				}) ;
 				

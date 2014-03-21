@@ -293,17 +293,18 @@ public final class R {
         public static final int connect_group_item=0x7f030007;
         public static final int contact_child_item=0x7f030008;
         public static final int contacts_layout=0x7f030009;
-        public static final int menu_capture_button=0x7f03000a;
-        public static final int menu_contacts_button=0x7f03000b;
-        public static final int menu_record_button=0x7f03000c;
-        public static final int menu_set_button=0x7f03000d;
-        public static final int record_layout=0x7f03000e;
-        public static final int record_list_header_layout=0x7f03000f;
-        public static final int record_list_item_layout=0x7f030010;
-        public static final int record_list_layout=0x7f030011;
-        public static final int set_layout=0x7f030012;
-        public static final int title_layout=0x7f030013;
-        public static final int view_header_layout=0x7f030014;
+        public static final int hidden=0x7f03000a;
+        public static final int menu_capture_button=0x7f03000b;
+        public static final int menu_contacts_button=0x7f03000c;
+        public static final int menu_record_button=0x7f03000d;
+        public static final int menu_set_button=0x7f03000e;
+        public static final int record_layout=0x7f03000f;
+        public static final int record_list_header_layout=0x7f030010;
+        public static final int record_list_item_layout=0x7f030011;
+        public static final int record_list_layout=0x7f030012;
+        public static final int set_layout=0x7f030013;
+        public static final int title_layout=0x7f030014;
+        public static final int view_header_layout=0x7f030015;
     }
     public static final class menu {
         public static final int main=0x7f0c0000;
@@ -862,6 +863,8 @@ public final class R {
         public static final int chat_text_name_style=0x7f0b0003;
     }
     public static final class xml {
-        public static final int set_preference=0x7f040000;
+        public static final int account_preferences=0x7f040000;
+        public static final int preferences=0x7f040001;
+        public static final int set_preference=0x7f040002;
     }
 }

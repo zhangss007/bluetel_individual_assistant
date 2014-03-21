@@ -30,6 +30,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.util.Log;
 
 /**
  * @author Sylvain Berfini
@@ -48,6 +49,7 @@ public class ChatStorage {
 	    context = c;
 	    ChatHelper chatHelper = new ChatHelper(context);
 	    db = chatHelper.getWritableDatabase();
+	    Log.i("TAG", "创建数据库了。。。。。") ;
 	}
 	
 	public void close() {
@@ -298,7 +300,7 @@ public class ChatStorage {
 	class ChatHelper extends SQLiteOpenHelper {
 	
 	    private static final int DATABASE_VERSION = 15;
-	    private static final String DATABASE_NAME = "linphone-android";
+	    private static final String DATABASE_NAME = "individual_assistant.db";
 	    
 	    ChatHelper(Context context) {
 	        super(context, DATABASE_NAME, null, DATABASE_VERSION);
