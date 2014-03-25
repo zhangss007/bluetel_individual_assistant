@@ -82,7 +82,7 @@ public class SipDataManager {
 				
 					sqlQuery = new Socket(serverIp, SER_SQL_CON_PORT) ;
 					sqlQueryOutput = sqlQuery.getOutputStream() ;
-					sqlQueryBuffer = new BufferedReader(new InputStreamReader(sqlQuery.getInputStream(),"gb2312")) ;
+					sqlQueryBuffer = new BufferedReader(new InputStreamReader(sqlQuery.getInputStream(),"gb2312"),8192*2) ;
 					
 				} catch (UnknownHostException e) {
 					

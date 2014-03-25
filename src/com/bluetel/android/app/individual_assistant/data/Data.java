@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.util.Log;
+
 import com.bluetel.android.app.individual_assistant.util.ExtenString;
 
 
@@ -210,10 +212,11 @@ public class Data {
 		
 		int status = -1 ; 
 		Depart cDepart = null ;
-		if (mDepartMap.containsKey(depart)){
+		Log.i("TAG", "部门---->" + depart) ;
+		if (mDepartMap.containsKey(depart)&&mDepartMap!= null){
 			
 			cDepart = mDepartMap.get(depart) ;
-			if (cDepart.getCurDepartExten(exten) != null){
+			if (cDepart!=null&&cDepart.getCurDepartExten(exten) != null){
 				
 				status = cDepart.getCurDepartExten(exten).getStatus();
 			}	

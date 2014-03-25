@@ -2,7 +2,11 @@ package com.bluetel.android.app.individual_assistant;
 
 import static android.content.Intent.ACTION_MAIN;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.datatype.Duration;
 
 import org.linphone.core.LinphoneAddress;
 import org.linphone.core.LinphoneCall;
@@ -22,6 +26,7 @@ import com.bluetel.android.app.individual_assistant.service.MainService;
 
 import android.R.string;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -52,6 +57,12 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 	
 	private SharedPreferences mPref;
 	private boolean accountCreated = false;
+	
+	
+	
+	
+	private Handler handler = new Handler();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -304,11 +315,21 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		return LinphoneManager.getInstance().chatStorage;
 	}
 
+	public int onMessageSent(String number,String to, String message) {
+		getChatStorage().deleteDraft(to);
+		return getChatStorage().saveTextMessage(number,"", to, message, System.currentTimeMillis());
+	}
+	
+	
+	
 	@Override
-	public void onMessageReceived(LinphoneAddress from,
-			LinphoneChatMessage message, int id) {
+	public void onMessageReceived(final LinphoneAddress from,
+			final LinphoneChatMessage message, final int id) {
 		// TODO Auto-generated method stub
-		Log.i("TAG","收到了信息了啊  。。。。。。") ;
+		if (MainService.isReady()){
+			
+			MainService.instance().onMessageReceived(from, message, id) ;
+		}
 		
 	}
 

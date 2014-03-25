@@ -23,7 +23,8 @@ import android.util.Log;
  */
 public class SipQuery extends Thread {
 
-	
+
+	private final String TAG = "TAG" ;
 	public static final int SIP_THREAD_ID = 0x123 ;
 	
 	private Handler handler ;
@@ -132,6 +133,8 @@ public class SipQuery extends Thread {
 							os.write(("Action: sippeers\r\n\r\naction: CoreShowChannels\r\n\r\n")
 									.getBytes("utf-8"));
 					}
+					
+					//Log.i("TAG", "接收数据为------>" + content ) ;
 					dealTheExtenInfoStatus(content) ;
 				}
 			} catch (IOException e) {
@@ -162,6 +165,11 @@ public class SipQuery extends Thread {
 				
 				key = content.substring(0, index) ;
 				value = content.substring(index + 2, content.length()) ;
+				
+//				Log.i(TAG,"KEY ------->" + key ) ;
+//				Log.i(TAG, "VALUE------>" + value) ;
+//				
+				
 				mMap.put(key, value) ;
 				
 			}
@@ -170,21 +178,25 @@ public class SipQuery extends Thread {
 			if (mMap.containsKey("Event")){
 				
 				if (mMap.containsValue("PeerStatus")){
-					
+					                         
 					name = mMap.get("Peer") ;
 					status = mMap.get("PeerStatus") ;
 					uid = mMap.get("Uniqueid") ;
 					setStatusByChannel(name,status,"","",uid) ;
-					Log.i("TAG", "Peer-->" + name + "PeerStatus-->" + status) ;
+					//Log.i("TAG", "Peer-->" + name + "PeerStatus-->" + status) ;
 				}else if (mMap.containsValue("PeerEntry")) {
 					
 					name = mMap.get("ObjectName") ;
 					status = mMap.get("Status") ;
 					addSip(name,status) ;
-					Log.i("TAG", "PeerEntry-->" + name + "Status-->" + status) ;
-				}else if (mMap.containsValue("CoreShowChannelsComplete")){
+					//Log.i("TAG", "PeerEntry-->" + name + "Status-->" + status) ;
+				}else if (mMap.containsValue("PeerlistComplete")){
 					
 					handlerMessage(SipDataManager.SIP_DATA_GET_COMPLETED) ;
+				}else if (mMap.containsValue("CoreShowChannelsComplete")){
+					
+					Log.i("TAG","Co reShowChannelsComplete") ;
+					//handlerMessage(SipDataManager.SIP_DATA_GET_COMPLETED) ;
 
 				}else if (mMap.containsValue("Newstate") ||mMap.containsValue("CoreShowChannel")){
 					

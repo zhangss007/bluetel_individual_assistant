@@ -83,7 +83,7 @@ public class ChatStorage {
 		db.update(TABLE_NAME, values, "id LIKE " + id, null);
 	}
 	
-	public int saveTextMessage(String from, String to, String message, long time) {
+	public int saveTextMessage(String extenNumber,String from, String to, String message, long time) {
 		ContentValues values = new ContentValues();
 		if (from.equals("")) {
 			values.put("localContact", from);
@@ -98,6 +98,7 @@ public class ChatStorage {
 			values.put("read", NOT_READ);
 			values.put("status", LinphoneChatMessage.State.Idle.toInt());
 		}
+		values.put("extenNumber", extenNumber) ;
 		values.put("message", message);
 		values.put("time", time);
 		return (int) db.insert(TABLE_NAME, null, values);
@@ -196,7 +197,7 @@ public class ChatStorage {
 	public List<ChatMessage> getMessages(String correspondent) {
 		List<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
 		
-		Cursor c = db.query(TABLE_NAME, null, "remoteContact LIKE \"" + correspondent + "\"", null, null, null, "id ASC");
+		Cursor c = db.query(TABLE_NAME, null, "extenNumber LIKE \"" + correspondent + "\"", null, null, null, "id ASC");
 		
 		while (c.moveToNext()) {
 			try {
@@ -308,7 +309,7 @@ public class ChatStorage {
 	
 	    @Override
 	    public void onCreate(SQLiteDatabase db) {
-	        db.execSQL("CREATE TABLE " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, localContact TEXT NOT NULL, remoteContact TEXT NOT NULL, direction INTEGER, message TEXT, image BLOB, url TEXT, time NUMERIC, read INTEGER, status INTEGER);");
+	        db.execSQL("CREATE TABLE " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, extenNumber TEXT NOT NULL, localContact TEXT NOT NULL, remoteContact TEXT NOT NULL, direction INTEGER, message TEXT, image BLOB, url TEXT, time NUMERIC, read INTEGER, status INTEGER);");
 	        db.execSQL("CREATE TABLE " + DRAFT_TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, remoteContact TEXT NOT NULL, message TEXT);");
 	    }
 	

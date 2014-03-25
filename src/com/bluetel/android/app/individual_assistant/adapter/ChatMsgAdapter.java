@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.bluetel.android.app.individual_assistant.R;
 import com.bluetel.android.app.individual_assistant.bean.ChatMsgEntity;
+import com.bluetel.android.app.individual_assistant.linphone.ChatMessage;
 
 import android.R.bool;
 import android.content.Context;
@@ -22,11 +23,11 @@ public class ChatMsgAdapter extends BaseAdapter{
 		int IMVT_TO_MSG = 1;
 	}
 	
-	private List<ChatMsgEntity> coo ;
+	private List<ChatMessage> coo ;
 	private Context context ;
 	private LayoutInflater inflater = null ;
 	
-	public ChatMsgAdapter(Context context, List<ChatMsgEntity> coo){
+	public ChatMsgAdapter(Context context, List<ChatMessage> coo){
 		
 		this.context  = context ;
 		inflater = LayoutInflater.from(context) ;
@@ -54,8 +55,8 @@ public class ChatMsgAdapter extends BaseAdapter{
 	@Override
 	public View getView(int arg0, View arg1, ViewGroup arg2) {
 		// TODO Auto-generated method stub
-		ChatMsgEntity entity = coo.get(arg0) ;
-		boolean isComMsg = entity.isComMsg() ;
+		ChatMessage entity = coo.get(arg0) ;
+		boolean isComMsg = entity.isIncoming() ;
 		ViewHoder vHoder = null ;
 		if (vHoder == null){
 			vHoder = new ViewHoder() ;
@@ -75,7 +76,7 @@ public class ChatMsgAdapter extends BaseAdapter{
 		
 		vHoder.chatMsg = (TextView)arg1.findViewById(R.id.tv_chat_content) ;
 		
-		vHoder.chatMsg.setText(entity.getTxt()) ;
+		vHoder.chatMsg.setText(entity.getMessage()) ;
 		
 		return arg1;
 	}

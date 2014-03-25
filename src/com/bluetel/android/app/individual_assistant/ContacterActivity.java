@@ -36,11 +36,16 @@ public class ContacterActivity extends Activity{
 	private ExpandableListView contactsView ;
 	private TextView title , netStatus ;
 	
+	private List<String> mConversations, mDrafts;
 	private List<Map<String,Object>> mdepartList ;
 	/**
 	 * 模拟分机数据信息
 	 */
 	private Map<String,com.bluetel.android.app.individual_assistant.data.Depart> mDepartMap ;
+	
+	
+	private Handler mHandler = new Handler();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -366,6 +371,17 @@ public class ContacterActivity extends Activity{
 	}
 	
 	
-
+	public void refresh(){
+		
+		mHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				
+			}
+		}) ;
+		
+	}
 	
 }

@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.linphone.core.LinphoneAddress;
 import org.linphone.core.LinphoneChatMessage;
 import org.linphone.core.LinphoneChatRoom;
@@ -16,6 +15,7 @@ import com.bluetel.android.app.individual_assistant.adapter.ChatMsgAdapter;
 import com.bluetel.android.app.individual_assistant.bean.ChatMsgEntity;
 import com.bluetel.android.app.individual_assistant.linphone.ChatMessage;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
+import com.bluetel.android.app.individual_assistant.service.MainService;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -41,6 +41,21 @@ import android.widget.Toast;
  */
 public class ChatActivity extends Activity implements OnClickListener ,LinphoneChatMessage.StateListener{
 
+	private static final int ADD_PHOTO = 1337;
+	private static final int MENU_DELETE_MESSAGE = 0;
+	private static final int MENU_SAVE_PICTURE = 1;
+	private static final int MENU_PICTURE_SMALL = 2;
+	private static final int MENU_PICTURE_MEDIUM = 3;
+	private static final int MENU_PICTURE_LARGE = 4;
+	private static final int MENU_PICTURE_REAL = 5;
+	private static final int MENU_COPY_TEXT = 6;
+	private static final int COMPRESSOR_QUALITY = 100;
+	private static final int SIZE_SMALL = 500;
+	private static final int SIZE_MEDIUM = 1000;
+	private static final int SIZE_LARGE = 1500;
+	private static final int MESSAGES_STEP = 20;
+	
+	
 	private TextView title ;
 	private Button backBtn ;
 	private String extenName = "";
@@ -53,12 +68,7 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 	private int messagesFilterLimit = 0;
 	
 	private ListView chatMsgView ;
-	
-    private String[]msgArray = new String[]{"有大吗", "有！你呢？", "我也有", "那上吧", 
-			"打啊！你放大啊", "你咋不放大呢？留大抢人头那！kkkkkkk",
-			"不解释", "尼滚....","jkljkljklj","456456456","5454546","rtyrtrtrtyry"};
-    private List<ChatMsgEntity> mDataArrays = new ArrayList<ChatMsgEntity>();
-    
+
     private List<ChatMessage> messagesList = null; 
     
     private ChatMsgAdapter mChatMsgAdapter = null ;
@@ -78,45 +88,59 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.chat_layout) ;
 		Intent intent = getIntent() ;
+		
+		
 		extenName = intent.getExtras().getString("ExtenName") ;
 		extenNumber = intent.getExtras().getString("ExtenNumber") ;
-		sipUri = intent.getExtras().getString("SipUri") ;
+		sipUri =extenNumber ; 
+				//intent.getExtras().getString("SipUri") ;
 		depart = intent.getExtras().getString("Depart") ;
 		Log.i("TAG", "SipUri--->" + sipUri ) ;
 		findViews() ;
-		init() ;
+		//init() ;
 		dispalyChat(extenName) ;
+		
+        if (savedInstanceState != null) {
+			messagesFilterLimit = savedInstanceState.getInt("messagesFilterLimit");
+		}
 		
         LinphoneCore lc = LinphoneManager.getLcIfManagerNotDestroyedOrNull();
 		if (lc != null) {
 			chatRoom = lc.createChatRoom(sipUri);
 		}
+	
+		if (MainService.isReady()){
+			
+			MainService.instance().setCurrentChatActivityToNull() ;
+			MainService.instance().setChatActivity(ChatActivity.this) ;
+		}
+
 	}	
 	
 	
 	
-	private void init (){
-		
-		for(int i = 0; i < COUNT; i++)
-    	{
-    		ChatMsgEntity entity = new ChatMsgEntity();
-    		if (i % 2 == 0)
-    		{
-    			entity.setName("小黑");
-    			entity.setComMsg(true);
-    		}else{
-    			entity.setName("人马");
-    			entity.setComMsg(false);
-    		}
-    		
-    		entity.setTxt(msgArray[i]);
-    		mDataArrays.add(entity);
-    	}
-		mChatMsgAdapter = new ChatMsgAdapter(ChatActivity.this, mDataArrays) ;
-		chatMsgView.setAdapter(mChatMsgAdapter) ;
-		mChatMsgAdapter.notifyDataSetInvalidated() ;
-		
-	}
+//	private void init (){
+//		
+//		for(int i = 0; i < COUNT; i++)
+//    	{
+//    		ChatMsgEntity entity = new ChatMsgEntity();
+//    		if (i % 2 == 0)
+//    		{
+//    			entity.setName("小黑");
+//    			entity.setComMsg(true);
+//    		}else{
+//    			entity.setName("人马");
+//    			entity.setComMsg(false);
+//    		}
+//    		
+//    		entity.setTxt(msgArray[i]);
+//    		mDataArrays.add(entity);
+//    	}
+//		mChatMsgAdapter = new ChatMsgAdapter(ChatActivity.this, mDataArrays) ;
+//		chatMsgView.setAdapter(mChatMsgAdapter) ;
+//		mChatMsgAdapter.notifyDataSetInvalidated() ;
+//		
+//	}
 	
 	private void findViews(){
 		
@@ -151,10 +175,20 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 		messagesList = MainActivity.getInstance().getChatMessages(sipUri);
 		if (messagesList != null && !messagesList.isEmpty()){
 			
-			Log.i("TAG", " 有聊天记录0哦。。。。。") ;
+			Log.i("TAG", " 有聊天记录0哦。。。。。" + messagesList.size()) ;
+			//if (mChatMsgAdapter == null ){
+				
+				mChatMsgAdapter = new ChatMsgAdapter(ChatActivity.this, messagesList) ;
+				chatMsgView.setAdapter(mChatMsgAdapter) ;
+				mChatMsgAdapter.notifyDataSetInvalidated() ;
+//			}else {
+//				
+//				mChatMsgAdapter.notifyDataSetInvalidated() ;
+//			}
+
 		}else {
 			
-			Log.i("TAG", " 暂时没 有聊天记录哦。。。。。") ;
+			Toast.makeText(ChatActivity.this, "暂时没 有聊天记录哦。。。。。", Toast.LENGTH_SHORT).show() ;
 		}
 	}
 
@@ -162,12 +196,16 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 
 	private void invalidate(int limit){
 		
-		
+		invalidate() ;
 	}
 	
 	private void dispalyChat(String displayName){
 		
-		title.setText(extenName) ;
+		if (title != null){
+			
+			title.setText(extenName) ;
+		}
+		
 		if (messagesFilterLimit == 0){
 			
 			invalidate() ;
@@ -217,7 +255,8 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 	
 	public void onMessageReceived(final int id, LinphoneAddress from, final LinphoneChatMessage message) throws UnsupportedEncodingException {
 		
-		Log.i("TAG", "收到短信了 啊 。。。。。。。。。") ;
+		Log.i("TAG", "收到短信了 啊 。。ChatAcitivity。。。。。。。") ;
+		dispalyChat(extenName);
 	}
 	
 	
@@ -231,8 +270,15 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 
 			LinphoneChatMessage chatMessage = chatRoom.createLinphoneChatMessage(messageToSend);
 			chatRoom.sendMessage(chatMessage, this);
-		}
+			int newId = -1;
+			if (MainActivity.isInStance()) {
 			
+				newId = MainActivity.getInstance().onMessageSent(extenNumber,sipUri, messageToSend);
+			}
+		}
+		dispalyChat(extenName) ;
+
+		
 //			int newId = -1;
 //			if (LinphoneActivity.isInstanciated()) {
 //				newId = LinphoneActivity.instance().onMessageSent(sipUri, messageToSend);
@@ -244,5 +290,30 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 //			LinphoneActivity.instance().displayCustomToast(getString(R.string.error_network_unreachable), Toast.LENGTH_LONG);
 //		}
 	}
+
+
+
+	public String getExtenName() {
+		return extenName;
+	}
+
+	
+
+
+	public String getExtenNumber() {
+		return extenNumber;
+	}
+
+
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+	}
+	
+	
+	
+	
 }
 
