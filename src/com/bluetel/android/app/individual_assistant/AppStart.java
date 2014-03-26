@@ -1,5 +1,8 @@
 package com.bluetel.android.app.individual_assistant;
 
+import static android.content.Intent.ACTION_MAIN;
+
+
 import com.bluetel.android.app.individual_assistant.service.MainService;
 
 
@@ -7,6 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -25,6 +29,8 @@ public class AppStart extends Activity{
 
 	private ImageView splashIv ;
 	private static final int ANIMATION = 3000 ;
+	private Handler mHandler;
+	private ServiceWaitThread mThread;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +42,8 @@ public class AppStart extends Activity{
 		//设置Activity竖屏显示
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.app_start_layout) ;
+		mHandler = new Handler();
 		splashIv = (ImageView)findViewById(R.id.spalsh_iv) ;
-		
-		Intent service = new Intent(AppStart.this, MainService.class) ;
-		startService(service) ;
 		
 		//设置一个3秒的渐变
 		AlphaAnimation animation = new AlphaAnimation(0.1f, 1.0f) ;
@@ -64,16 +68,69 @@ public class AppStart extends Activity{
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				// TODO Auto-generated method stub
-				Intent intent = new Intent(AppStart.this, MainActivity.class) ;
-				startActivity(intent) ;
-				//logIn("629","629","192.168.0.140",true) ;
-				AppStart.this.finish() ;
+//				Intent intent = new Intent(AppStart.this,LoginActivity.class) ;
+//				startActivity(intent) ;
+//				AppStart.this.finish() ;
+				
+				
+				if (MainService.isReady()) {
+					onServiceReady();
+				} else {
+					// start linphone as background  
+					startService(new Intent(ACTION_MAIN).setClass(AppStart.this, MainService.class));
+					mThread = new ServiceWaitThread();
+					mThread.start();
+				}
 			}
 		}) ;
 	}
 	
 	
+	private class ServiceWaitThread extends Thread{
 
+		@Override
+		public void run() {
+			super.run();
+			
+			while(!MainService.isReady()){
+				
+				try {
+					sleep(30) ;
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			mHandler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					onServiceReady();
+				}
+			}) ;
+			mThread = null ;
+		}
+	}
+	
+	protected void onServiceReady() {
+		final Class<? extends Activity> classToStart ;
+		if (getResources().getBoolean(R.bool.show_tutorials_instead_of_app)) {
+			classToStart = LoginActivity.class;
+		} else {
+			classToStart = MainActivity.class;
+		}
+		
+		MainService.instance().setActivityToLaunchOnIncomingReceived(classToStart);
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				startActivity(new Intent().setClass(AppStart.this, classToStart).setData(getIntent().getData()));
+				finish();
+			}
+		}, 1000);
+	}
 
 	
 }

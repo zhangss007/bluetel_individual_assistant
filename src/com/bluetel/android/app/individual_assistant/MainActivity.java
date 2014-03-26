@@ -76,7 +76,11 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		findViews() ;
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		instance = this ;
-		logIn("625", "625", "192.168.0.140", true) ;
+		if (MainService.isReady()){
+			
+			//logIn("625", "625", "192.168.0.140", true) ;
+		}
+		
 	}
 	
 	static final boolean isInStance(){
@@ -337,6 +341,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 	public void onRegistrationStateChanged(RegistrationState state) {
 		// TODO Auto-generated method stub
 		
+		Log.i("TAG","注册状态。。。。。") ;
 	}
 
 	@Override
