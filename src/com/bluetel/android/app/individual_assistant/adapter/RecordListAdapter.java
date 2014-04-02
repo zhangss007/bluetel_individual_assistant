@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.bluetel.android.app.individual_assistant.R;
 import com.bluetel.android.app.individual_assistant.bean.Record;
+import com.bluetel.android.app.individual_assistant.bean.UploadFile;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -22,9 +23,9 @@ import android.widget.TextView;
 public class RecordListAdapter extends BaseAdapter{
 
 	
-	private List<Record> lists ;
+	private List<UploadFile> lists ;
 	private LayoutInflater inflater ;
-	public RecordListAdapter(Context context, List<Record> lists){
+	public RecordListAdapter(Context context, List<UploadFile> lists){
 		
 		inflater = LayoutInflater.from(context) ;
 		this.lists = lists ;
@@ -66,8 +67,8 @@ public class RecordListAdapter extends BaseAdapter{
 		vHoder.recordFileName = (TextView)arg1.findViewById(R.id.record_file_name) ;
 		vHoder.recordTimer = (TextView)arg1.findViewById(R.id.record_timer) ;
 		
-		vHoder.recordFileName.setText(lists.get(arg0).getTimer()) ;
-		vHoder.recordTimer.setText(lists.get(arg0).getRecordTimer()) ;
+		vHoder.recordFileName.setText(lists.get(arg0).getFileName()) ;
+		vHoder.recordTimer.setText(lists.get(arg0).getTime()) ;
 		return arg1;
 	}
 

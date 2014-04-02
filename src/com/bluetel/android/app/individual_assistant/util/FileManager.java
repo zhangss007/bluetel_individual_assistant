@@ -28,32 +28,40 @@ public class FileManager {
 	 * 录音文件格式标志
 	 */
 	public static final int MEDIA_TYPE_RECORD = 3 ;
+	public static final String LORCAL_UPLOAD_FILE_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "MyAppStorage" ;
 	
-	private static  FileManager instance = null  ;
+	
+	//private static  FileManager instance = null  ;
 	
 	private File mediaStorageDir = null ;
 	
 	private static final String TAG = "TAG" ;
 	
-	private String currentUploadFileName = null ;
+	private String FilePath = null ;
+	private String fileName  = null ;
 	
-	private static boolean isInstance(){
-		
-		if (instance!= null)
-			return true ;
-		return false ;
-	}
+//	private static boolean isInstance(){
+//		
+//		if (instance!= null)
+//			return true ;
+//		return false ;
+//	}
 	
 	/**
 	 *获得当前上传的文件名称
 	 * @return
 	 */
-	public String getCurrentUploadFileName(){
+	public String getFilePath(){
 		
-		return currentUploadFileName ;
+		return  FilePath;
 	}
 	
-	protected FileManager(){
+	public String getFileName(){
+		
+		return fileName ;
+	}
+	
+	public FileManager(){
 		
 		mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
 	              Environment.DIRECTORY_PICTURES), "MyAppStorage");
@@ -69,12 +77,12 @@ public class FileManager {
 	
 	
 	
-	public static FileManager getInstance() {
-		
-		if (!isInstance())
-			instance = new FileManager() ;		
-		return instance ;
-	}
+//	public static FileManager getInstance() {
+//		
+//		if (!isInstance())
+//			instance = new FileManager() ;		
+//		return instance ;
+//	}
 	
 	
 	public File getOutPutMediaFile(int type) {
@@ -85,19 +93,22 @@ public class FileManager {
 	    if (type == MEDIA_TYPE_IMAGE){
 	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
 	        "IMG_"+ timeStamp + ".jpg");
-	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	        FilePath = mediaStorageDir.getPath() + File.separator +
 	    	        "IMG_"+ timeStamp + ".jpg" ;
+	        fileName =  "IMG_"+ timeStamp + ".jpg" ;
 	    } else if(type == MEDIA_TYPE_VIDEO) {
 	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
 	        "VID_"+ timeStamp + ".mp4");
-	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	        FilePath = mediaStorageDir.getPath() + File.separator +
 	    	        "VID_"+ timeStamp + ".mp4" ;
+	        fileName = "VID_"+ timeStamp + ".mp4" ;
 	    } else if (type == MEDIA_TYPE_RECORD){
 	    	
 	    	mediaFile = new File(mediaStorageDir.getPath() + File.separator + 
 	    	"REC_"+ timeStamp + ".3gp") ;
-	        currentUploadFileName = mediaStorageDir.getPath() + File.separator +
+	        FilePath = mediaStorageDir.getPath() + File.separator +
 	    	        "REC_"+ timeStamp + ".3gp" ;
+	        fileName = "REC_"+ timeStamp + ".3gp" ;
 	    }else {
 	    	
 	    	return null ;

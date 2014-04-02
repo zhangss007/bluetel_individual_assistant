@@ -4,4 +4,5 @@
     <color name="text_over">#ffb9c4cb</color>
     <color name="text_default">#ff5b656f</color>
     <color name="text_disabled">#ffa6b3bf</color>
+     <color name="contents_text">#ff000000</color>
 </resources>

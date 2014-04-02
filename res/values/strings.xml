@@ -2,15 +2,22 @@
 <resources>
 
     <string name="app_name">单兵助手</string>
+    <string name="about">关于蓝海迅捷</string>
+    <string name="codec_set">编码设置</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 	
+    <string name="about_bluetel">
+	联系我们\n地址:北京市昌平区西三旗龙旗广场2号楼7层717\n总　机：010-82250336\n传　真：010-82250445\n销售热线：18600050658\n邮　箱：qianc@bluetel.cn
+	</string>
+    
+    
     <string name="button_contact">联系人</string>
     <string name="button_capture">图像</string>
     <string name="button_record">录音</string>
     <string name="button_set">设置</string>
     
-    <string name="menu_title_login">登录</string>
+    <string name="menu_title_login">帐号设置</string>
     <string name="menu_title_contacter">通讯录</string>
     <string name="menu_title_record">录音</string>
     <string name="menu_title_set">设置</string>

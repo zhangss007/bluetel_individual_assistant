@@ -12,8 +12,9 @@ import java.util.TimerTask;
 import static android.media.AudioManager.MODE_RINGTONE;
 import static android.media.AudioManager.STREAM_RING;
 import static android.media.AudioManager.STREAM_VOICE_CALL;
+import static org.linphone.core.LinphoneCall.State.CallEnd;
+import static org.linphone.core.LinphoneCall.State.Error;
 import static org.linphone.core.LinphoneCall.State.IncomingReceived;
-
 
 import org.linphone.core.LinphoneAddress;
 import org.linphone.core.LinphoneCall;
@@ -42,6 +43,7 @@ import org.linphone.mediastream.video.capture.AndroidVideoApi5JniWrapper;
 import org.linphone.mediastream.video.capture.hwconf.Hacks;
 
 import com.bluetel.android.app.individual_assistant.R;
+import com.bluetel.android.app.individual_assistant.compatibility.Compatibility;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnAudioChangedListener;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneOnMessageReceivedListener;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneServiceListener;
@@ -134,6 +136,10 @@ public class LinphoneManager implements LinphoneCoreListener{
 	}
 	
 	private ListenerDispatcher mListenerDispatcher;
+	
+	public static final boolean isInstanciated() {
+		return instance != null;
+	}
 	
 	
 	protected LinphoneManager(final Context c , LinphoneServiceListener listener){
@@ -853,21 +859,74 @@ public class LinphoneManager implements LinphoneCoreListener{
 		}
 		if (cstate == LinphoneCall.State.IncomingReceived ||  (cstate == State.CallIncomingEarlyMedia && mR.getBoolean(R.bool.allow_ringing_while_early_media))){
 			
-			//来电自动接听
-			Log.i("new state [",cstate,"]" + "来电话了 。。。。");
-			LinphoneCallParams params = LinphoneManager.getLc().createDefaultCallParameters();
-			if (call != null)
-				LinphoneManager.getInstance().acceptCallWithParams(call, params) ;
 			
 		}
 		
 		if (cstate == LinphoneCall.State.Connected){
 			
+			if (mLc.getCallsNb() == 1) {
+				requestAudioFocus();
+				Compatibility.setAudioManagerInCallMode(mAudioManager);
+			}
 			
+			if (Hacks.needSoftvolume() || sLPref.useSoftvolume()) {
+				adjustVolume(0); // Synchronize
+			}
 		}
+		
+		if (cstate == CallEnd || cstate == Error) {
+			if (mLc.getCallsNb() == 0) {
+				if (mAudioFocused){
+					int res=mAudioManager.abandonAudioFocus(null);
+					Log.d("Audio focus released a bit later: " + (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED ? "Granted" : "Denied"));
+					mAudioFocused=false;
+				}
+				
+//				Context activity = getContext();
+//				if (activity != null) {
+//					TelephonyManager tm = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
+//					if (tm.getCallState() == TelephonyManager.CALL_STATE_IDLE) {
+//						mAudioManager.setMode(AudioManager.MODE_NORMAL);
+//						Log.d("---AudioManager: back to MODE_NORMAL");
+//					}
+//				}
+			}
+		}
+
+		if (cstate == CallEnd) {
+			if (mLc.getCallsNb() == 0) {
+				if (mIncallWakeLock != null && mIncallWakeLock.isHeld()) {
+					mIncallWakeLock.release();
+					Log.i("Last call ended: releasing incall (CPU only) wake lock");
+				} else {
+					Log.i("Last call ended: no incall (CPU only) wake lock were held");
+				}
+			}
+		}
+		if (cstate == State.StreamsRunning) {
+			if (mIncallWakeLock == null) {
+				mIncallWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,	"incall");
+			}
+			if (!mIncallWakeLock.isHeld()) {
+				Log.i("New call active : acquiring incall (CPU only) wake lock");
+				mIncallWakeLock.acquire();
+			} else {
+				Log.i("New call active while incall (CPU only) wake lock already active");
+			}
+		}
+		mListenerDispatcher.onCallStateChanged(call, cstate, message);
 		
 	}
 
+	
+	private void requestAudioFocus(){
+		if (!mAudioFocused){
+			int res=mAudioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT );
+			Log.d("Audio focus requested: " + (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED ? "Granted" : "Denied"));
+			if (res==AudioManager.AUDIOFOCUS_REQUEST_GRANTED) mAudioFocused=true;
+		}
+	}
+	
 	/**
 	 * ����绰����
 	 * @param call
@@ -1069,6 +1128,8 @@ public class LinphoneManager implements LinphoneCoreListener{
 			for (LinphoneOnCallStateChangedListener l : getSimpleListeners(LinphoneOnCallStateChangedListener.class)) {
 				l.onCallStateChanged(call, state, message);
 			}
+			
+			
 		}
 
 		public void onDisplayStatus(String message) {

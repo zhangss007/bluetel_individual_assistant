@@ -120,12 +120,16 @@ public class Depart {
 			seats_state = 1 ;
 		}
 		
-		for (Exten cExten:cDepartList){
+		if (cDepartList != null){
 			
-			if (cExten.getNumber().equals(exten)){
+		Log.i("TAG", "部门名称为--》" + cDepartList.get(0).getDepart()) ;
+			for (Exten cExten:cDepartList){
 				
-				cExten.setStatus(seats_state) ;
-				break ;
+				if (cExten!=null&&cExten.getNumber().equals(exten)){
+					
+					cExten.setStatus(seats_state) ;
+					break ;
+				}
 			}
 		}
 	}

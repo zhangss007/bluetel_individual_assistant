@@ -11,10 +11,12 @@ import com.bluetel.android.app.individual_assistant.data.SipDataManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +45,7 @@ public class ContacterActivity extends Activity{
 	 */
 	private Map<String,com.bluetel.android.app.individual_assistant.data.Depart> mDepartMap ;
 	
+	private SharedPreferences mPref;
 	
 	private Handler mHandler = new Handler();
 	
@@ -55,7 +58,7 @@ public class ContacterActivity extends Activity{
 //		//设置Activity全屏显示
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
 		//设置Activity竖屏显示
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
+		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.contacts_layout) ;
 		findView() ;
 		
@@ -111,10 +114,14 @@ public class ContacterActivity extends Activity{
 			
 		} ;
 		
+		String serverIp = "" ;
 		
-		SipDataManager dataManager = new SipDataManager(handler) ;
+		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		serverIp = mPref.getString(getResources().getString(R.string.pref_domain_key), "");
+		SipDataManager dataManager = new SipDataManager(handler,serverIp) ;
 		dataManager.startGetExtenInfoByQuery() ;
 		
+		Log.i("TAG", "登录的服务器IP地址------------->" + serverIp ) ;
 //		new Thread(){
 //
 //			@Override
@@ -383,5 +390,19 @@ public class ContacterActivity extends Activity{
 		}) ;
 		
 	}
+
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+//		if (MainActivity.isInStance()){
+//			
+//			MainActivity.getInstance().setActivityPortRair() ;
+//		}
+	}
+	
+	
 	
 }

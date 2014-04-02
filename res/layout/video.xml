@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/video_frame"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <org.linphone.mediastream.video.display.GL2JNIView 
+        android:visibility="gone" 
+        android:layout_height="match_parent" 
+        android:layout_width="match_parent" 
+        android:id="@+id/videoSurface"
+        />
+    
+	
+	<SurfaceView
+	    android:id="@+id/videoCaptureSurface" 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:visibility="gone"/>
+
+
+	<FrameLayout 
+	    android:id="@+id/camera_preview"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    ></FrameLayout>
+		
+	
+</RelativeLayout>

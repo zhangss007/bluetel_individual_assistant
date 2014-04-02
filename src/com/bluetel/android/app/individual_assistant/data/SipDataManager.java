@@ -63,9 +63,9 @@ public class SipDataManager {
     private OutputStream sipQueryOutput = null ;
     private BufferedReader sipQueryBuffer = null ; 
     
-	public SipDataManager(Handler handler){
+	public SipDataManager(Handler handler,String serverIp){
 		
-		serverIp = "192.168.0.140" ; 
+		this.serverIp = serverIp ; 
 		this.handler = handler ;
 	}
 	

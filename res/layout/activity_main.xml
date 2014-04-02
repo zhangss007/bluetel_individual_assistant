@@ -14,7 +14,7 @@
         <include layout="@layout/menu_contacts_button"></include>
         <include layout="@layout/menu_capture_button"></include>
         <include layout="@layout/menu_record_button"></include>
-        <include layout="@layout/menu_set_button"></include>"
+        <include layout="@layout/menu_set_button"></include>
    		</LinearLayout>
     
    <FrameLayout 

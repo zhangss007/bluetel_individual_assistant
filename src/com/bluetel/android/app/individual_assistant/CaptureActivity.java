@@ -29,10 +29,6 @@ public class CaptureActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);   
-		//设置Activity全屏显示
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
-		//设置Activity横屏显示
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.capture_layout) ;
 		startPreviewCamera() ;
 		Log.i(TAG, "onCreate............") ;

@@ -23,6 +23,9 @@ import java.util.List;
 
 import org.linphone.core.LinphoneChatMessage;
 
+import com.bluetel.android.app.individual_assistant.bean.UploadFile;
+import com.bluetel.android.app.individual_assistant.util.FileManager;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -44,7 +47,8 @@ public class ChatStorage {
 	private SQLiteDatabase db;
 	private static final String TABLE_NAME = "chat";
 	private static final String DRAFT_TABLE_NAME = "chat_draft";
-
+	private static final String UPLOAD_FILE_TABLE_NAME = "upload_file" ;
+	
 	public ChatStorage(Context c) {
 	    context = c;
 	    ChatHelper chatHelper = new ChatHelper(context);
@@ -82,6 +86,21 @@ public class ChatStorage {
 		
 		db.update(TABLE_NAME, values, "id LIKE " + id, null);
 	}
+	
+	
+	public int saveUploadFileInfo(String userNumber,String fileName,int fileType,String time, int status){
+		
+		ContentValues values = new ContentValues();
+		values.put("user", userNumber) ;
+		values.put("fileName", fileName) ;
+		values.put("fileType", fileType) ;
+		values.put("filePath", FileManager.LORCAL_UPLOAD_FILE_PATH) ;
+		values.put("time", time) ;
+		values.put("status", status) ;
+		
+		return (int) db.insert(UPLOAD_FILE_TABLE_NAME, null, values);
+	}
+	
 	
 	public int saveTextMessage(String extenNumber,String from, String to, String message, long time) {
 		ContentValues values = new ContentValues();
@@ -193,6 +212,40 @@ public class ChatStorage {
 		
 		return drafts;
 	}
+	
+	
+	/**
+	 * 返回长传文件信息
+	 * @param user
+	 * @return
+	 */
+	public List<UploadFile> getUpLoadFile(String user){
+		
+		List<UploadFile> uploadFiles = new ArrayList<UploadFile>() ;
+		Cursor c = db.query(UPLOAD_FILE_TABLE_NAME, null, "user LIKE \"" + user + "\"", null, null, null, "id ASC") ;
+		while(c.moveToNext()){
+			
+			try {
+				
+				String fileName , filePath , time ;
+				int id = c.getInt(c.getColumnIndex("id")) ;
+				fileName = c.getString(c.getColumnIndex("fileName")) ;
+				int fileType = c.getInt(c.getColumnIndex("fileType")) ;
+				filePath = c.getString(c.getColumnIndex("filePath")) ;
+				time = c.getString(c.getColumnIndex("time")) ;
+				int status = c.getInt(c.getColumnIndex("status"));
+				
+				UploadFile uploadFile = new UploadFile(id, user, fileName, fileType, filePath, time, status) ;
+				
+				uploadFiles.add(uploadFile) ;
+			}catch(Exception e){
+				e.printStackTrace();	
+			}
+		}
+		c.close() ;
+		return uploadFiles ;
+	}
+	
 	
 	public List<ChatMessage> getMessages(String correspondent) {
 		List<ChatMessage> chatMessages = new ArrayList<ChatMessage>();
@@ -311,6 +364,7 @@ public class ChatStorage {
 	    public void onCreate(SQLiteDatabase db) {
 	        db.execSQL("CREATE TABLE " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, extenNumber TEXT NOT NULL, localContact TEXT NOT NULL, remoteContact TEXT NOT NULL, direction INTEGER, message TEXT, image BLOB, url TEXT, time NUMERIC, read INTEGER, status INTEGER);");
 	        db.execSQL("CREATE TABLE " + DRAFT_TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, remoteContact TEXT NOT NULL, message TEXT);");
+	        db.execSQL("CREATE TABLE " + UPLOAD_FILE_TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT NOT NULL, fileName TEXT NOT NULL, fileType INTEGER, filePath TEXT NOT NULL, time TEXT NOT NULL, status INTEGER);") ;
 	    }
 	
 		@Override

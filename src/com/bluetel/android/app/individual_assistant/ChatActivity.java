@@ -85,7 +85,7 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 //		//设置Activity全屏显示
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
 		//设置Activity竖屏显示
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
+	//	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.chat_layout) ;
 		Intent intent = getIntent() ;
 		
@@ -180,7 +180,8 @@ public class ChatActivity extends Activity implements OnClickListener ,LinphoneC
 				
 				mChatMsgAdapter = new ChatMsgAdapter(ChatActivity.this, messagesList) ;
 				chatMsgView.setAdapter(mChatMsgAdapter) ;
-				mChatMsgAdapter.notifyDataSetInvalidated() ;
+				mChatMsgAdapter.notifyDataSetChanged() ;
+				chatMsgView.setSelection(mChatMsgAdapter.getCount()) ;
 //			}else {
 //				
 //				mChatMsgAdapter.notifyDataSetInvalidated() ;

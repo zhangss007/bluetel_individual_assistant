@@ -1,4 +1,4 @@
-package com.bluetel.android.app.individual_assistant.service;
+																																												package com.bluetel.android.app.individual_assistant.service;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -244,6 +244,11 @@ public class MainService extends Service implements LinphoneServiceListener{
 	public void onCallStateChanged(LinphoneCall arg0, State arg1, String arg2) {
 		// TODO Auto-generated method stub
 		
+		
+		if (arg1 == LinphoneCall.State.IncomingReceived) {
+		
+			Log.i("TAG","MainServices.....来电了。。。。。") ;
+		}
 	}
 
 	@Override

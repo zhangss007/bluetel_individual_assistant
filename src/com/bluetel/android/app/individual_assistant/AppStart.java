@@ -38,9 +38,9 @@ public class AppStart extends Activity{
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);   
 		//设置Activity全屏显示
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
+		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN) ;
 		//设置Activity竖屏显示
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
+		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.app_start_layout) ;
 		mHandler = new Handler();
 		splashIv = (ImageView)findViewById(R.id.spalsh_iv) ;

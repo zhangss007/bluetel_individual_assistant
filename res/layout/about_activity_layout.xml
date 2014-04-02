@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <include 
+        layout="@layout/title_layout"
+        />
+    
+    <ImageView 
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:src="@drawable/bluetel3"
+        android:scaleType="fitXY"
+        />
+
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="@string/about_bluetel"
+        android:textColor="@color/contents_text"
+        />
+</LinearLayout>

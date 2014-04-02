@@ -10,6 +10,8 @@ import com.bluetel.android.app.individual_assistant.util.FileManager;
 import com.bluetel.android.app.individual_assistant.util.NetWork;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaRecorder;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -68,14 +71,20 @@ public class RecordActivity extends Activity implements OnClickListener{
 	
 	private FTP ftp = null ;
 	
+	private FileManager fileManager = new FileManager() ;
+	
+	private SharedPreferences mPref ;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.record_layout) ;
 		findViews() ;
-		init() ;
+		resetRecord();
 		
+		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		
 		handler = new Handler(){
 
@@ -112,7 +121,11 @@ public class RecordActivity extends Activity implements OnClickListener{
 						break ;
 					case FTP.FTP_UPLOAD_SUCCESS:{
 					
+							//changeRecordBtnResource(currentRecordBtnSelectors[0]) ;
 							//ftp上传成功
+							
+							resetRecord() ;
+							
 						    Toast.makeText(RecordActivity.this, "文件上传成功了。。。", Toast.LENGTH_SHORT).show() ;
 						}						
 						break ;
@@ -152,12 +165,12 @@ public class RecordActivity extends Activity implements OnClickListener{
 				if(NetWork.isNetworkAvailable(RecordActivity.this)){
 					//开始ftp进行文件上传
 					
-					String currentUploadFile = FileManager.getInstance().getCurrentUploadFileName() ;
+					String currentUploadFile = fileManager.getFilePath() ;
 					if (currentUploadFile!= null){
 						
-						File file = new File(FileManager.getInstance().getCurrentUploadFileName()) ;
+						File file = new File(fileManager.getFilePath()) ;
 						
-						ftp = new FTP(handler, "192.168.0.140") ;
+						ftp = new FTP(handler, mPref.getString(getResources().getString(R.string.pref_domain_key), "")) ;
 						ftp.setStoreFileInfo(file,currentUploadFile ) ;
 						ftp.setFtpTaskType(FTP.FTP_STORE) ;
 						ftp.setUpload(true) ;
@@ -187,9 +200,11 @@ public class RecordActivity extends Activity implements OnClickListener{
 	}
 	
 	
-	private void init(){
+	private void resetRecord(){
 		
 		currentRecordBtnSelector = currentRecordBtnSelectors[0] ;
+		recordBegin.setBackgroundResource(R.drawable.record_btn_begin) ;
+		recordImage.setBackgroundResource(R.drawable.record_img_no) ;
 	}
 	
 	/**
@@ -248,10 +263,11 @@ public class RecordActivity extends Activity implements OnClickListener{
 	private void stratRecord(){
 		
 		//TODO start record 
+		String fileName = fileManager.getOutPutMediaFile(FileManager.MEDIA_TYPE_RECORD).toString();
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC) ;
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP) ;
-		mRecorder.setOutputFile(FileManager.getInstance().getOutPutMediaFile(FileManager.MEDIA_TYPE_RECORD).toString()) ;
+		mRecorder.setOutputFile(fileName) ;
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB) ;
 		try {
 			mRecorder.prepare() ;
@@ -263,7 +279,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 			e.printStackTrace();
 		}
 		mRecorder.start() ;
-		
+		MainActivity.getInstance().onSaveUploadFile("625", fileManager.getFileName(), FileManager.MEDIA_TYPE_RECORD, "00:12", 0) ;		
 	}
 	
 	/**
@@ -299,9 +315,9 @@ public class RecordActivity extends Activity implements OnClickListener{
 			}
 		}) ;
 		try{  
-			if (FileManager.getInstance().getCurrentUploadFileName()!= null){
+			if (fileManager.getFilePath()!= null){
 				
-				mPlayer.setDataSource(FileManager.getInstance().getCurrentUploadFileName());  
+				mPlayer.setDataSource(fileManager.getFilePath());  
 				mPlayer.prepare();  
 				mPlayer.start();  
 			}
@@ -323,4 +339,19 @@ public class RecordActivity extends Activity implements OnClickListener{
 			mPlayer = null ;
 		}
 	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		if (MainActivity.isInStance()){
+			
+			MainActivity.getInstance().setActivityPortRair() ;
+			
+		}
+	}
+	
+	
+	
+	
 }
