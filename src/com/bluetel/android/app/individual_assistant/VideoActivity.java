@@ -175,10 +175,6 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		
 		super.onResume();		
 		
-//		if(MainActivity.isInStance()){
-//			
-//			MainActivity.getInstance().hideMenuBottom() ;
-//		}
 		boolean isVideoEnabled = false ;
 		
 		if (LinphoneManager.getLc().getCallsNb() > 0) {
@@ -192,6 +188,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
         }else {
         	mCaptureView.setVisibility(View.INVISIBLE) ;
         	if (mCamera == null){
+        		//releaseCamera() ;
         		startPreviewCamera() ;     
         	}
         	
@@ -199,14 +196,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		if (isVideoEnabled){
 			
 			Toast.makeText(VideoActivity.this, "可以进行开启视频了。。。", Toast.LENGTH_SHORT).show() ;
-			releaseCamera() ;
-			
-		    
 			mCaptureView.setVisibility(View.VISIBLE) ;	
-		}else {
-			
-			
-			
 		}
 		
 		if (mVideoView != null) {
@@ -218,10 +208,6 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 				LinphoneManager.getLc().setVideoWindow(androidVideoWindowImpl);
 			}
 		}
-		
-		
-		//mGestureDetector = new GestureDetector(inCallActivity, this); 
-		//mScaleDetector = Compatibility.getScaleGestureDetector(inCallActivity, this);
 	}
 	
 	private void fixZOrder(SurfaceView video, SurfaceView preview) {
@@ -302,6 +288,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 	 */
 	public void startPreviewCamera(){
 		
+		mCaptureView.setVisibility(View.INVISIBLE) ;
 		if (checkCameraHardware(this)){
 			
 			Log.i("TAG", getResources().getString(R.string.haved_camera)) ;
@@ -332,8 +319,16 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		Camera c = null ;
 		try{
 			//attempt to get a Camera instance 
-			c= Camera.open(Camera.getNumberOfCameras()-1) ;
-			setCameraDisplayOrientation(instance,Camera.getNumberOfCameras()-1, c) ;
+			int num = Camera.getNumberOfCameras() ;
+			if (num == 2 ){
+				
+				c = Camera.open(0) ;
+				setCameraDisplayOrientation(instance,0, c) ;
+			}else {
+				
+				c = Camera.open() ;
+				setCameraDisplayOrientation(instance,1, c) ;
+			}
 			//c = Camera.open(0) ;
 		}catch(Exception e){
 			e.printStackTrace();

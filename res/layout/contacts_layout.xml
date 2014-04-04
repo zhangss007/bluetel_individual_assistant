@@ -17,5 +17,14 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:groupIndicator="@null"
+        android:visibility="gone"
         ></ExpandableListView>
+    <ImageView 
+        android:id="@+id/get_contacter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/get_contecter"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        />
 </LinearLayout>

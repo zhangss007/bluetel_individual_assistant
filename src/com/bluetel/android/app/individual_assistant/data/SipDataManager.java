@@ -65,7 +65,14 @@ public class SipDataManager {
     
 	public SipDataManager(Handler handler,String serverIp){
 		
-		this.serverIp = serverIp ; 
+		String ser = serverIp ;
+		if (ser.contains(":")){
+			
+			this.serverIp = ser.substring(0,ser.indexOf(":")) ;
+		}else{
+			this.serverIp = serverIp ; 
+		}
+		
 		this.handler = handler ;
 	}
 	

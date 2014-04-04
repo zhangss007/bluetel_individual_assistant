@@ -56,6 +56,7 @@ import static com.bluetel.android.app.individual_assistant.R.string.pref_codec_s
 import static com.bluetel.android.app.individual_assistant.R.string.pref_video_enable_key;
 
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothProfile;
@@ -114,6 +115,8 @@ public class LinphoneManager implements LinphoneCoreListener{
 	
 	
 	public ChatStorage chatStorage; 
+	
+	//private  BroadcastReceiver mKeepAliveReceiver = new KeepAliveReceiver();
 	
 	private static List<LinphoneSimpleListener> simpleListeners = new ArrayList<LinphoneSimpleListener>();
 	public static void addListener(LinphoneSimpleListener listener) {
@@ -1301,6 +1304,42 @@ public class LinphoneManager implements LinphoneCoreListener{
 	}
 	
 	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
+	private void doDestroy() {
+		if (chatStorage != null) {
+			chatStorage.close();
+			chatStorage = null;
+		}
+
+		try {
+			mServiceContext.unregisterReceiver(bluetoothReiceiver);
+		} catch (Exception e) {}
+		
+		try {
+			if (Version.sdkAboveOrEqual(Version.API11_HONEYCOMB_30))
+				mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mBluetoothHeadset);
+		} catch (Exception e) {}
+		
+		try {
+			mTimer.cancel();
+			mLc.destroy();
+		} 
+		catch (RuntimeException e) {
+			e.printStackTrace();
+		}
+		finally {
+		//	mServiceContext.unregisterReceiver(instance.mKeepAliveReceiver);
+			mLc = null;
+			instance = null;
+		}
+	}
+	
+	public static synchronized void destroy() {
+		if (instance == null) return;
+		sExited=true;
+		instance.doDestroy();
+	}
 	
 	
 	

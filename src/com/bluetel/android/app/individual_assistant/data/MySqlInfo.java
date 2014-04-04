@@ -50,7 +50,8 @@ public class MySqlInfo {
 		/**
 		 * 查询mysql数据库中分机的信息  ，包括分机号、坐席姓名、分机所属部门
 		 */
-		public static final String  SELECT_EXTEN_ALL_INFO_SQL = "select name,department,exten from broadcast.txl_employee;" ; 
+		//"select name,department,exten from broadcast.txl_employee;" ; 
+		public static final String  SELECT_EXTEN_ALL_INFO_SQL = "select name,department,exten from bluepbx.txl_employee;" ; 
 		
 		/**
 		 * 获取对讲组号，对讲组名字  对讲组信息

@@ -122,7 +122,7 @@ public class Depart {
 		
 		if (cDepartList != null){
 			
-		Log.i("TAG", "部门名称为--》" + cDepartList.get(0).getDepart()) ;
+		//Log.i("TAG", "部门名称为--》" + cDepartList.get(0).getDepart()) ;
 			for (Exten cExten:cDepartList){
 				
 				if (cExten!=null&&cExten.getNumber().equals(exten)){

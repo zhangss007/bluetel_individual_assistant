@@ -6,10 +6,11 @@
     
     <include layout="@layout/record_list_header_layout" android:layout_alignParentTop="true" android:id="@+id/header"></include>
     <ImageView 
+        android:id="@+id/no_recored_file"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/record_empty"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_centerInParent="true"
         />
      <ListView 
@@ -17,6 +18,7 @@
          android:layout_width="match_parent"
          android:layout_height="match_parent"
          android:layout_below="@id/header"
+         android:visibility="gone"
          ></ListView>
     
 </RelativeLayout>

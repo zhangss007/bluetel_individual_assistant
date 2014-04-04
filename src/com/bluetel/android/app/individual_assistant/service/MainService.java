@@ -354,5 +354,40 @@ public class MainService extends Service implements LinphoneServiceListener{
 			Log.w(e, "Unable to invoke method");
 		}
 	}
+	
+	@Override
+	public synchronized void onDestroy() {
+		LinphoneManager.getLc().setPresenceInfo(0, "", OnlineStatus.Offline);
+		instance = null;
+		LinphoneManager.destroy();
 
+	    // Make sure our notification is gone.
+	    stopForegroundCompat(NOTIF_ID);
+	    mNM.cancel(INCALL_NOTIF_ID);
+	    mNM.cancel(MESSAGE_NOTIF_ID);
+	    mWifiLock.release();
+		super.onDestroy();
+	}
+
+	/**
+	 * This is a wrapper around the new stopForeground method, using the older
+	 * APIs if it is not available.
+	 */
+	void stopForegroundCompat(int id) {
+		// If we have the new stopForeground API, then use it.
+		if (mStopForeground != null) {
+			mStopForegroundArgs[0] = Boolean.TRUE;
+			invokeMethod(mStopForeground, mStopForegroundArgs);
+			return;
+		}
+
+		// Fall back on the old API.  Note to cancel BEFORE changing the
+		// foreground state, since we could be killed at that point.
+		mNM.cancel(id);
+		if (mSetForeground != null) {
+			mSetForegroundArgs[0] = Boolean.FALSE;
+			invokeMethod(mSetForeground, mSetForegroundArgs);
+		}
+	}
+	
 }

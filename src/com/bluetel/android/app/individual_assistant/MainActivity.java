@@ -80,6 +80,8 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 	private static final int INCOMING_RECEIVED = 5 ;
 	
 	private Handler handler;
+	
+	private int currentMenuSelect = 0 ;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);   
 		//设置Activity横屏显示
-	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
+	//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) ;
 		setContentView(R.layout.activity_main);
 		
 		handler = new Handler() {
@@ -100,28 +102,38 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 					
 					int type = (Integer) msg.obj ;
 					switch (type) {
-					case REGISTER_OK:
-						Toast.makeText(MainActivity.this, "注册成功。。。", Toast.LENGTH_SHORT).show() ;
+					case REGISTER_OK:{
+						
+							Toast.makeText(MainActivity.this, "注册成功。。。", Toast.LENGTH_SHORT).show() ;
+							if (ContacterActivity.isInstance()){
+								
+								ContacterActivity.getInstance().startGetContacters() ;
+							}
+						}
 						break;
 					case REGISTER_FAILURE:
 						Toast.makeText(MainActivity.this, "注册失败。。。", Toast.LENGTH_SHORT).show() ;
 						break ;
 					case CALL_OK:{
+						startOrientationSensor() ;
 						resetMenuButtonSelector() ;
 						capture.setSelected(true) ;
 						startViewByActivity(VideoActivity.class,0) ;
 						Toast.makeText(MainActivity.this, "服务端启动了远程视频监控任务。。。", Toast.LENGTH_SHORT).show() ;
-						//Intent intent  = new Intent(packageContext, cls)
-						startOrientationSensor() ;
+						
 						
 						}
 						break ;
 					case CALL_END:{
 						
-							if(VideoActivity.isInstance()){
+							if (currentMenuSelect == R.id.capture){
 								
-								VideoActivity.getInstance().startPreviewCamera() ;
+								if(VideoActivity.isInstance()){
+								
+									VideoActivity.getInstance().startPreviewCamera() ;
+								}
 							}
+
 							Toast.makeText(MainActivity.this, "服务器远程监控结束", Toast.LENGTH_SHORT).show();
 						}
 						break ;
@@ -129,6 +141,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 						
 							if(VideoActivity.isInstance()){
 								
+								Toast.makeText(MainActivity.this, "关闭当前已经开启的摄像头", Toast.LENGTH_SHORT).show();
 								VideoActivity.getInstance().releaseCamera() ;
 							}
 						}
@@ -243,6 +256,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		// TODO Auto-generated method stub
 		resetMenuButtonSelector() ;
 		int checkId = v.getId() ;
+		currentMenuSelect = checkId ;
 		switch (checkId) {
 		case R.id.contacts:
 			contact.setSelected(true) ;
@@ -363,6 +377,9 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 			writePreference(getString(R.string.pref_username_key) + newAccountId, username);
 			writePreference(getString(R.string.pref_passwd_key) + newAccountId, password);
 			writePreference(getString(R.string.pref_domain_key) + newAccountId, domain);
+//			writePreference(R.string.pref_username_key, username);
+//			writePreference(R.string.pref_passwd_key, password);
+//			writePreference(R.string.pref_domain_key, domain);
 		}
 		String forcedProxy=getResources().getString(R.string.setup_forced_proxy);
 		if (!TextUtils.isEmpty(forcedProxy)) {
@@ -552,6 +569,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 				return;
 			}
 
+			Log.i("TAG","设备的方向为----------->" + o ) ;
 			int degrees = 270;
 //			if (o < 45 || o > 315)
 //				degrees = 0;

@@ -34,10 +34,15 @@ import android.widget.Toast;
 
 public class ContacterActivity extends Activity{
 
+	
+
+	private static ContacterActivity instance ;
+	
 	private ContactersAdapter contactsAdapter = null ;
 	private ExpandableListView contactsView ;
 	private TextView title , netStatus ;
 	
+	private ImageView getContacter ;
 	private List<String> mConversations, mDrafts;
 	private List<Map<String,Object>> mdepartList ;
 	/**
@@ -47,7 +52,7 @@ public class ContacterActivity extends Activity{
 	
 	private SharedPreferences mPref;
 	
-	private Handler mHandler = new Handler();
+	private Handler mHandler ;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +67,7 @@ public class ContacterActivity extends Activity{
 		setContentView(R.layout.contacts_layout) ;
 		findView() ;
 		
-		final Handler handler = new Handler(){
+		mHandler = new Handler(){
 
 			@Override
 			public void handleMessage(Message msg) {
@@ -78,6 +83,8 @@ public class ContacterActivity extends Activity{
 					}else if ((Integer)msg.obj == SipDataManager.NET_CONNECTING_ERROR){
 						//网络连接错误
 						netStatus.setText("网络连接错误") ;
+						//读取联系人失败
+						getContacter.setBackgroundResource(R.drawable.no_contecter) ;
 					}
 				}else if (msg.what == SipDataManager.AMI_CONNECT){
 					
@@ -89,6 +96,8 @@ public class ContacterActivity extends Activity{
 						mDepartMap = Data.getInstance().getmDepartMap() ;
 						if (mDepartMap != null && mdepartList != null){
 							
+							getContacter.setVisibility(View.GONE) ;
+							contactsView.setVisibility(View.VISIBLE) ;
 							contactsAdapter= new ContactersAdapter(ContacterActivity.this) ;
 							contactsView.setAdapter(contactsAdapter) ;
 							contactsAdapter.notifyDataSetInvalidated() ;
@@ -114,14 +123,10 @@ public class ContacterActivity extends Activity{
 			
 		} ;
 		
-		String serverIp = "" ;
+		startGetContacters() ;
 		
-		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		serverIp = mPref.getString(getResources().getString(R.string.pref_domain_key), "");
-		SipDataManager dataManager = new SipDataManager(handler,serverIp) ;
-		dataManager.startGetExtenInfoByQuery() ;
 		
-		Log.i("TAG", "登录的服务器IP地址------------->" + serverIp ) ;
+		instance = this ;
 //		new Thread(){
 //
 //			@Override
@@ -218,6 +223,18 @@ public class ContacterActivity extends Activity{
 			contactsView.expandGroup(i);
 	}
 	
+	
+	public static boolean isInstance(){
+		
+		return instance != null ;
+	}
+	
+	public static ContacterActivity getInstance(){
+		
+		return instance ;
+	}
+	
+	
 	private void findView(){
 		
 		contactsView = (ExpandableListView)findViewById(R.id.contact_view) ;
@@ -226,6 +243,7 @@ public class ContacterActivity extends Activity{
 		
 		title.setText(getResources().getString(R.string.menu_title_contacter)) ;
 		
+		getContacter = (ImageView)findViewById(R.id.get_contacter) ;
 		contactsView.setOnGroupClickListener(new OnGroupClickListener() {
 			
 			@Override
@@ -391,7 +409,20 @@ public class ContacterActivity extends Activity{
 		
 	}
 
-
+	
+	//获得联系人信息
+	public void startGetContacters(){
+		
+		String serverIp = "" ;
+		
+		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		serverIp = mPref.getString(getResources().getString(R.string.pref_domain_key), "");
+		SipDataManager dataManager = new SipDataManager(mHandler,serverIp) ;
+		dataManager.startGetExtenInfoByQuery() ;
+	}
+	
+	
+	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub

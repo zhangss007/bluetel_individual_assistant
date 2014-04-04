@@ -212,7 +212,7 @@ public class Data {
 		
 		int status = -1 ; 
 		Depart cDepart = null ;
-		Log.i("TAG", "部门---->" + depart) ;
+		//Log.i("TAG", "部门---->" + depart) ;
 		if (mDepartMap.containsKey(depart)&&mDepartMap!= null){
 			
 			cDepart = mDepartMap.get(depart) ;

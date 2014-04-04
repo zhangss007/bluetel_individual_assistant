@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class RecordListActivity extends Activity{
 
 	
 	private Button leftbackBtn ;
+	private ImageView recodImageState ;
 	private ListView records ;
 	private List<UploadFile> recordList = null;
 	private String TAG = "TAG" ;
@@ -45,6 +47,8 @@ public class RecordListActivity extends Activity{
 		
 		if (recordList != null){
 			
+			recodImageState.setVisibility(View.GONE) ;
+			records.setVisibility(View.VISIBLE) ;
 			RecordListAdapter adapter  = new RecordListAdapter(RecordListActivity.this, recordList) ;
 			records.setAdapter(adapter) ;
 			adapter.notifyDataSetInvalidated() ;
@@ -59,6 +63,7 @@ public class RecordListActivity extends Activity{
 		leftbackBtn = (Button)findViewById(R.id.left_btn) ;
 		records = (ListView)findViewById(R.id.records) ;
 		leftbackBtn.setOnClickListener(backBtnListener) ;
+		recodImageState = (ImageView)findViewById(R.id.no_recored_file) ;
 
 	}
 	
