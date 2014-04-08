@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.bluetel.android.app.individual_assistant.data.Data;
 import com.bluetel.android.app.individual_assistant.data.SipDataManager;
+import com.bluetel.android.app.individual_assistant.service.MainService;
 
 
 
@@ -126,93 +127,7 @@ public class ContacterActivity extends Activity{
 		startGetContacters() ;
 		
 		
-		instance = this ;
-//		new Thread(){
-//
-//			@Override
-//			public void run() {
-//				// TODO Auto-generated method stub
-//				super.run();
-//				
-//				Cursor cur = getContentResolver().query(  
-//		                ContactsContract.Contacts.CONTENT_URI,  
-//		                null,  
-//		                null,  
-//		                null,  
-//		                ContactsContract.Contacts.DISPLAY_NAME  
-//		                        + " COLLATE LOCALIZED ASC");  
-//		        // 循环遍历  
-//		        if (cur.moveToFirst()) {  
-//		            int idColumn = cur.getColumnIndex(ContactsContract.Contacts._ID);  
-//		  
-//		            int displayNameColumn = cur  
-//		                    .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);  
-//		  
-//		            do {  
-//		            	Contact contact = new Contact() ;
-//		                // 获得联系人的ID号  
-//		                String contactId = cur.getString(idColumn);  
-//		                // 获得联系人姓名  
-//		                String disPlayName = cur.getString(displayNameColumn);  
-//		                  
-//		               
-//		                
-//		                // 查看该联系人有多少个电话号码。如果没有这返回值为0  
-//		                int phoneCount = cur  
-//		                        .getInt(cur  
-//		                                .getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));  
-//		                Log.i("username", disPlayName);  
-//		                contact.setName(disPlayName) ;
-//		                if (phoneCount > 0) {  
-//		                    // 获得联系人的电话号码  
-//		                    Cursor phones = getContentResolver().query(  
-//		                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,  
-//		                            null,  
-//		                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID  
-//		                                    + " = " + contactId, null, null);  
-//		                    if (phones.moveToFirst()) {  
-//		                        do {  
-//		                            // 遍历所有的电话号码  
-//		                            String phoneNumber = phones  
-//		                                    .getString(phones  
-//		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));  
-//		                            String phoneType = phones  
-//		                                    .getString(phones  
-//		                                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));  
-//		                            Log.i("phoneNumber", phoneNumber);  
-//		                            Log.i("phoneType", phoneType);  
-//		                            contact.setNumber(phoneNumber) ;
-//		                        } while (phones.moveToNext());   
-//		                    }  
-//		                } 
-//		                if (contact.getName() != null && contact.getNumber() != null){
-//		                	
-//		                	contacts.add(contact) ;
-//		                }
-//		                
-//		                Log.i("TAG", ".......................................................") ;
-//		            } while (cur.moveToNext());  
-//		            
-//		        }  
-//		        if (!contacts.isEmpty()){
-//		        	
-//		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为--------" + contacts.size()) ;
-//		        	Message message = handler.obtainMessage() ;
-//		        	message.what = 0x0234 ;
-//		        	message.obj = CONTACT_OK ;
-//		        	message.sendToTarget();
-//		        }else {
-//		        	
-//		        	Log.i("TAG", "联系人已经遍历完成。。。。 人数为00000--------") ;
-//		        }
-//			}
-//		
-//			
-//		}.start() ;
-	
-		
-		
-	
+		instance = this ;	
     }  
 
 	
@@ -417,8 +332,31 @@ public class ContacterActivity extends Activity{
 		
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		serverIp = mPref.getString(getResources().getString(R.string.pref_domain_key), "");
-		SipDataManager dataManager = new SipDataManager(mHandler,serverIp) ;
-		dataManager.startGetExtenInfoByQuery() ;
+		
+		if (!SipDataManager.isInstance()){
+		
+			if (MainService.isReady()){
+				
+				MainService.instance().startGetContact(mHandler, serverIp) ;
+			}
+		}else{
+			
+			//获得部门信息
+			mdepartList = Data.getInstance().getMdepartList() ;
+			mDepartMap = Data.getInstance().getmDepartMap() ;
+			if (mDepartMap != null && mdepartList != null){
+				
+				getContacter.setVisibility(View.GONE) ;
+				contactsView.setVisibility(View.VISIBLE) ;
+				contactsAdapter= new ContactersAdapter(ContacterActivity.this) ;
+				contactsView.setAdapter(contactsAdapter) ;
+				contactsAdapter.notifyDataSetInvalidated() ;
+				expandGroup(mdepartList.size()) ;
+				
+			}
+		}
+//		SipDataManager dataManager = new SipDataManager(mHandler, serverIp) ;
+//		dataManager.startGetExtenInfoByQuery() ;
 	}
 	
 	

@@ -63,6 +63,28 @@ public class SipDataManager {
     private OutputStream sipQueryOutput = null ;
     private BufferedReader sipQueryBuffer = null ; 
     
+    private static SipDataManager instance ;
+    
+    public static boolean isInstance(){
+    	
+    	return instance != null ;
+    }
+    
+    public synchronized static void createAndStart(Handler handler, String serverIP){
+    	
+    	if (instance == null){
+    		
+    		instance = new SipDataManager(handler, serverIP) ;
+    	}
+    }
+    
+    public static SipDataManager getInstance(){
+    	
+    	return instance ;
+    }
+    
+    
+    
 	public SipDataManager(Handler handler,String serverIp){
 		
 		String ser = serverIp ;
@@ -75,6 +97,8 @@ public class SipDataManager {
 		
 		this.handler = handler ;
 	}
+	
+	
 	
 	public void startGetExtenInfoByQuery(){
 		

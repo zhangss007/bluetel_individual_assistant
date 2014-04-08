@@ -3,7 +3,9 @@ package com.bluetel.android.app.individual_assistant;
 import org.linphone.core.LinphoneCall;
 import org.linphone.core.LinphoneCore;
 import org.linphone.mediastream.video.AndroidVideoWindowImpl;
+import org.linphone.mediastream.video.capture.hwconf.AndroidCameraConfiguration;
 
+import com.bluetel.android.app.individual_assistant.linphone.CallManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneUtils;
 
@@ -40,6 +42,9 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 	private FrameLayout preview  = null ;
 	
 	
+	private Button backHomeBtn ;
+	
+	private ImageButton switchCamer ;
 	
 	
 	private static VideoActivity instance ;
@@ -61,7 +66,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
-		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ;
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ;
 		setContentView(R.layout.video) ;
 		
 		mVideoView = (SurfaceView)findViewById(R.id.videoSurface);
@@ -69,7 +74,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		mCaptureView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS); // Warning useless because value is ignored and automatically set by new APIs.
 		
 		startSipCapture() ;
-		
+		findViews() ;
 		instance = this ;
 		//startPreviewCamera() ;
 	}
@@ -77,6 +82,11 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 	
 	
 	private void findViews(){
+		
+		backHomeBtn = (Button)findViewById(R.id.home) ;
+		switchCamer = (ImageButton)findViewById(R.id.switch_camera) ;
+		backHomeBtn.setOnClickListener(this) ;
+		switchCamer.setOnClickListener(this) ;
 		
 	}
 	
@@ -389,6 +399,39 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
+		switch (v.getId()) {
+		case R.id.home:{
+				
+				if (MainActivity.isInStance()){
+					
+					MainActivity.getInstance().backHome() ;
+				}
+			}
+			break;
+		case R.id.switch_camera:{
+			
+				switchCamera() ;
+			}
+			break ;
+		default:
+			break;
+		}
 	}
+	
+	//切换摄像头
+	  public void switchCamera() {	
+			try {
+				int videoDeviceId = LinphoneManager.getLc().getVideoDevice();
+				videoDeviceId = (videoDeviceId + 1) % AndroidCameraConfiguration.retrieveCameras().length;
+				LinphoneManager.getLc().setVideoDevice(videoDeviceId);
+				CallManager.getInstance().updateCall();
+				
+				// previous call will cause graph reconstruction -> regive preview window
+				if (mCaptureView != null) {
+					LinphoneManager.getLc().setPreviewWindow(mCaptureView);
+				}
+			} catch (ArithmeticException ae) {
+				//Log.e("Cannot swtich camera : no camera");
+			}
+		}
 }

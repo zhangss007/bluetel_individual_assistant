@@ -13,7 +13,8 @@ import org.linphone.core.LinphoneCall.State;
 import org.linphone.core.LinphoneChatMessage;
 import org.linphone.core.LinphoneCore.RegistrationState;
 import org.linphone.core.LinphoneProxyConfig;
-import org.linphone.mediastream.Log;
+import org.linphone.core.VideoSize;
+
 
 import com.bluetel.android.app.individual_assistant.bean.UploadFile;
 import com.bluetel.android.app.individual_assistant.linphone.ChatMessage;
@@ -35,6 +36,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -80,8 +82,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 	private static final int INCOMING_RECEIVED = 5 ;
 	
 	private Handler handler;
-	
-	private int currentMenuSelect = 0 ;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +119,10 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 						startOrientationSensor() ;
 						resetMenuButtonSelector() ;
 						capture.setSelected(true) ;
+						
 						startViewByActivity(VideoActivity.class,0) ;
+						MainService.instance().setCurrentMenuSelect(R.id.capture) ;
+						hideMenuBottom() ;
 						Toast.makeText(MainActivity.this, "服务端启动了远程视频监控任务。。。", Toast.LENGTH_SHORT).show() ;
 						
 						
@@ -126,7 +130,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 						break ;
 					case CALL_END:{
 						
-							if (currentMenuSelect == R.id.capture){
+							if (MainService.instance().getCurrentMenuSelect() == R.id.capture){
 								
 								if(VideoActivity.isInstance()){
 								
@@ -158,7 +162,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 
 		
 		if (!LinphoneManager.isInstanciated()) {
-			Log.e("No service running: avoid crash by starting the launcher", this.getClass().getName());
+			//Log.e("No service running: avoid crash by starting the launcher", this.getClass().getName());
 			// super.onCreate called earlier
 			finish();
 			startActivity(getIntent().setClass(this, AppStart.class));
@@ -179,9 +183,28 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		resetMenuButtonSelector() ;
 		contact.setSelected(true) ;
-		startViewByActivity(ContacterActivity.class,R.id.contacts) ;
+		
+		int kk = MainService.instance().getCurrentMenuSelect() ;
+		//检测横竖屏切换   的问题
+		if (MainService.instance().getCurrentMenuSelect() == R.id.capture){
+			
+			
+			startViewByActivity(VideoActivity.class,R.id.capture) ;
+			hideMenuBottom() ;
+		}else if (MainService.instance().getCurrentMenuSelect() == R.id.set){
+			
+			startViewByActivity(SetActivity.class,R.id.set) ;
+		}else if(MainService.instance().getCurrentMenuSelect() == R.id.record){
+			
+			startViewByActivity(RecordActivity.class,R.id.record) ;
+		}else{
+			
+			startViewByActivity(ContacterActivity.class,R.id.contacts) ;
+		}
+		
 		instance = this ;
 		Log.i("TAG","。。。。。。。创建了一次MainActivity了。。。。。") ;
+		
 	}
 	
 	static final boolean isInStance(){
@@ -236,13 +259,26 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 	
 	public void hideMenuBottom (){
 		
-		if (menuBottom.isShown()){
+		//if (menuBottom.isShown()){
 			
 			menuBottom.setVisibility(View.GONE) ;
-		}
+		//}
 	}
 
+	public void showMenuBttom (){
+		
+		if (!menuBottom.isShown())
+			menuBottom.setVisibility(View.VISIBLE) ;
+	}
 	
+	public void backHome(){
+		resetMenuButtonSelector() ;
+		contact.setSelected(true) ;
+		showMenuBttom() ;
+		startViewByActivity(ContacterActivity.class,0) ;
+		setActivityPortRair();
+		MainService.instance().setCurrentMenuSelect(R.id.contacts) ;
+	}
 	
 	private void resetMenuButtonSelector(){
 		
@@ -256,7 +292,8 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		// TODO Auto-generated method stub
 		resetMenuButtonSelector() ;
 		int checkId = v.getId() ;
-		currentMenuSelect = checkId ;
+		//currentMenuSelect = checkId ;
+		MainService.instance().setCurrentMenuSelect(checkId) ;
 		switch (checkId) {
 		case R.id.contacts:
 			contact.setSelected(true) ;
@@ -264,6 +301,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 			break;
 		case R.id.capture:
 			capture.setSelected(true) ;
+			hideMenuBottom() ;
 			startViewByActivity(VideoActivity.class,checkId) ;
 			break ;
 		case R.id.record:
@@ -292,6 +330,8 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		// Remove to avoid duplication of the listeners
 		LinphoneManager.removeListener(this);
 		LinphoneManager.addListener(this);
+		
+		//hideMenuBottom() ;
 	}
 
 	
@@ -327,7 +367,7 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		try {
 			LinphoneManager.getInstance().initFromConf();
 		} catch (Throwable e) {
-			Log.e(e, "Error while initializing from config in first login activity");
+			//Log.e(e, "Error while initializing from config in first login activity");
 			//Toast.makeText(this, getString(R.string.error), Toast.LENGTH_LONG).show();
 		}
 
@@ -514,9 +554,13 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 			handMessage(CALL_END) ;
 		}else if (state == LinphoneCall.State.IncomingReceived){
 			
+//			VideoSize vin1 = new VideoSize(352, 288) ;
+//			LinphoneCore lc = LinphoneManager.getLcIfManagerNotDestroyedOrNull();
+//			if (lc != null)
+//				lc.setPreferredVideoSize(vin1) ;
 			handMessage(INCOMING_RECEIVED) ;
 			//来电自动接听
-			Log.i("new state [",state,"]" + "来电话了 。。。。");
+			//Log.i("new state [",state,"]" + "来电话了 。。。。");
 			LinphoneCallParams params = LinphoneManager.getLc().createDefaultCallParameters();
 			if (call != null)
 				LinphoneManager.getInstance().acceptCallWithParams(call, params) ;
@@ -568,30 +612,26 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 			if (o == OrientationEventListener.ORIENTATION_UNKNOWN) {
 				return;
 			}
-
-			Log.i("TAG","设备的方向为----------->" + o ) ;
 			int degrees = 270;
-//			if (o < 45 || o > 315)
-//				degrees = 0;
-//			else if (o < 135)
-//				degrees = 90;
-//			else if (o < 225)
-//				degrees = 180;
 			
-//			 int degrees = 0;
-//		     switch (o) {
-//		         case Surface.ROTATION_0: degrees = 0; break;
-//		         case Surface.ROTATION_90: degrees = 90; break;
-//		         case Surface.ROTATION_180: degrees = 180; break;
-//		         case Surface.ROTATION_270: degrees = 270; break;
-//		     }
+//			if (o < 45 || o > 315){
+//				
+//				Log.i("TAG","设备的方向为---<-- 45 315  --->-------->" + o ) ;
+//				degrees = 0;
+//			}else if (o < 135){
+//				Log.i("TAG","设备的方向为---<-- 0 < 135  --->-------->" + o ) ;
+//				degrees = 90;
+//			}else if (o < 225){
+//				Log.i("TAG","设备的方向为---<-- 0 < 225 --->-------->" + o ) ;
+//				degrees = 180;
+//			}
 
 			if (mAlwaysChangingPhoneAngle == degrees) {
 				return;
 			}
 			mAlwaysChangingPhoneAngle = degrees;
 
-			Log.d("Phone orientation changed to ", degrees);
+			//Log.d("Phone orientation changed to ", degrees);
 			int rotation = (360 - degrees) % 360;
 			LinphoneCore lc = LinphoneManager.getLcIfManagerNotDestroyedOrNull();
 			if (lc != null) {
@@ -609,25 +649,17 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
 		
-		int degrees = 270;
-		if (mAlwaysChangingPhoneAngle == degrees) {
-			return;
-		}
-		mAlwaysChangingPhoneAngle = degrees;
-
-		Log.d("Phone orientation changed to ", degrees);
-		int rotation = (360 - degrees) % 360;
-		LinphoneCore lc = LinphoneManager.getLcIfManagerNotDestroyedOrNull();
-		if (lc != null) {
-			lc.setDeviceRotation(rotation);
-			LinphoneCall currentCall = lc.getCurrentCall();
-			if (currentCall != null && currentCall.cameraEnabled() && currentCall.getCurrentParamsCopy().getVideoEnabled()) {
-				lc.updateCall(currentCall, null);
-			}
-		}
+		if (newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE) {
+	           // Nothing need to be done here
+			  Log.i("TAG","屏幕是横屏了的了。。。。") ;
+	        } else {
+	        	Log.i("TAG","屏幕是竖屏的了。。。。") ;
+	           // Nothing need to be done here
+	        }
 		
 	}
 	
+        
 	
 	
 	

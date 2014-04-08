@@ -19,6 +19,7 @@ import com.bluetel.android.app.individual_assistant.ChatActivity;
 import com.bluetel.android.app.individual_assistant.MainActivity;
 import com.bluetel.android.app.individual_assistant.R;
 import com.bluetel.android.app.individual_assistant.compatibility.Compatibility;
+import com.bluetel.android.app.individual_assistant.data.SipDataManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphonePreferenceManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneSimpleListener.LinphoneServiceListener;
@@ -88,6 +89,21 @@ public class MainService extends Service implements LinphoneServiceListener{
 	private Class<? extends Activity> incomingReceivedActivity = MainActivity.class;
 	
 	
+	private int currentMenuSelect = 0 ;
+	
+	
+	
+	
+	public int getCurrentMenuSelect() {
+		return currentMenuSelect;
+	}
+
+
+	public void setCurrentMenuSelect(int currentMenuSelect) {
+		this.currentMenuSelect = currentMenuSelect;
+	}
+
+
 	public static boolean isReady() {
 		return instance!=null && instance.mTestDelayElapsed;
 	}
@@ -231,6 +247,7 @@ public class MainService extends Service implements LinphoneServiceListener{
 		}
 		
 		LinphoneManager.getLc().setPresenceInfo(0, "", OnlineStatus.Online);
+	
 		
 	}
 
@@ -388,6 +405,18 @@ public class MainService extends Service implements LinphoneServiceListener{
 			mSetForegroundArgs[0] = Boolean.FALSE;
 			invokeMethod(mSetForeground, mSetForegroundArgs);
 		}
+	}
+	
+	/**
+	 * 启动获得联系人信息
+	 * @param handler
+	 * @param ip
+	 */
+	public void startGetContact(Handler handler ,String serIp ){
+		
+		SipDataManager.createAndStart(handler, serIp) ;
+		SipDataManager dataManager = SipDataManager.getInstance() ;
+		dataManager.startGetExtenInfoByQuery() ;
 	}
 	
 }
