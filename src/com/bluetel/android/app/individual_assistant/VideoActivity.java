@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,14 +42,30 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 	private CameraPreview mPreview;
 	private FrameLayout preview  = null ;
 	
+    private int numCamera;
+    private int cameraId;
+    private int cameraCurrentId;
 	
+    /**
+     * 返回主页
+     */
 	private Button backHomeBtn ;
 	
+	/**
+	 * 摄像头切换
+	 */
 	private ImageButton switchCamer ;
+	
+	/**
+	 * 拍照 上传
+	 */
+	private ImageButton shutter ;
 	
 	
 	private static VideoActivity instance ;
 	
+	//监控状态
+	private boolean monitor = false ;
 	
 	public static boolean isInstance(){
 		
@@ -75,6 +92,16 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		
 		startSipCapture() ;
 		findViews() ;
+		
+		 numCamera = Camera.getNumberOfCameras();
+		 CameraInfo info = new CameraInfo();
+		 for(int i = 0;i< numCamera;i++){
+			 Camera.getCameraInfo(i, info);
+			 if(info.facing == CameraInfo.CAMERA_FACING_BACK){
+				 cameraId = i;
+			 }
+		 }
+		 //cameraCurrentId = cameraId ;
 		instance = this ;
 		//startPreviewCamera() ;
 	}
@@ -85,9 +112,10 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		
 		backHomeBtn = (Button)findViewById(R.id.home) ;
 		switchCamer = (ImageButton)findViewById(R.id.switch_camera) ;
+		shutter = (ImageButton)findViewById(R.id.shutter) ;
 		backHomeBtn.setOnClickListener(this) ;
 		switchCamer.setOnClickListener(this) ;
-		
+		shutter.setOnClickListener(this) ;
 	}
 	
 	
@@ -177,6 +205,8 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 			((GLSurfaceView) mVideoView).onPause();
 		}
 		
+		
+		
 		super.onPause();
 	}
 	
@@ -192,21 +222,32 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 
         	if (LinphoneUtils.isCallEstablished(call)) {
     			isVideoEnabled = call.getCurrentParamsCopy().getVideoEnabled() && !call.getRemoteParams().isLowBandwidthEnabled();
-    			Toast.makeText(VideoActivity.this, "........。。。", Toast.LENGTH_SHORT).show() ;
     			
         	}
-        }else {
+        }
+		
+		if (isVideoEnabled){
+			//监控中
+			mCaptureView.setVisibility(View.VISIBLE) ;	
+			monitor = true ;
+		}else{
+			
         	mCaptureView.setVisibility(View.INVISIBLE) ;
         	if (mCamera == null){
         		//releaseCamera() ;
-        		startPreviewCamera() ;     
+        		
+        		if (numCamera == 2){
+	        		mCamera = Camera.open();
+					mPreview = new CameraPreview(this, mCamera);
+			        preview = (FrameLayout) findViewById(R.id.camera_preview);
+			        preview.addView(mPreview);
+	        		cameraCurrentId = cameraId;
+        		}else {
+					startPreviewCamera() ;
+        		}
+
         	}
-        	
-        }
-		if (isVideoEnabled){
-			
-			Toast.makeText(VideoActivity.this, "可以进行开启视频了。。。", Toast.LENGTH_SHORT).show() ;
-			mCaptureView.setVisibility(View.VISIBLE) ;	
+        	monitor = false ;
 		}
 		
 		if (mVideoView != null) {
@@ -266,6 +307,7 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
     public void releaseCamera(){
         if (mCamera != null){
             mCamera.release();   
+            //mCamera.stopPreview() ;
             // release the camera for other applications
             mCamera = null;
             if (mPreview != null)
@@ -301,21 +343,16 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		mCaptureView.setVisibility(View.INVISIBLE) ;
 		if (checkCameraHardware(this)){
 			
-			Log.i("TAG", getResources().getString(R.string.haved_camera)) ;
 			mCamera = getCameraInstance() ;
 			if (mCamera != null ){
 				
 				mPreview = new CameraPreview(this, mCamera);
 		        preview = (FrameLayout) findViewById(R.id.camera_preview);
 		        preview.addView(mPreview);
-		        
-		      
-		        
+				//cameraCurrentId = cameraId;
 			}else{
-				
+
 				Toast.makeText(VideoActivity.this, "相机初始化失败....", Toast.LENGTH_SHORT).show() ;
-				releaseCamera() ;
-				//VideoActivity.this.finish() ;
 			}
 
 		}else {
@@ -324,25 +361,19 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		}
 	}
 	
-	public static Camera getCameraInstance(){
+	
+	public Camera getCameraInstance(){
 		
 		Camera c = null ;
 		try{
-			//attempt to get a Camera instance 
-			int num = Camera.getNumberOfCameras() ;
-			if (num == 2 ){
-				
-				c = Camera.open(0) ;
-				setCameraDisplayOrientation(instance,0, c) ;
-			}else {
-				
-				c = Camera.open() ;
-				setCameraDisplayOrientation(instance,1, c) ;
-			}
-			//c = Camera.open(0) ;
+		
+            c = Camera.open((cameraCurrentId + 1) % numCamera);
+            cameraCurrentId = (cameraCurrentId + 1)
+                    % numCamera;
+			 
 		}catch(Exception e){
-			e.printStackTrace();
 			
+			e.printStackTrace();
 		}
 		return c ;
 	}
@@ -396,9 +427,11 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		
 	}
 
+	/**
+	 * 按钮监听事件
+	 */
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.home:{
 				
@@ -410,7 +443,20 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 			break;
 		case R.id.switch_camera:{
 			
-				switchCamera() ;
+				if (monitor){
+					
+					switchCamera() ;
+				}else {
+					
+					releaseCamera();
+					startPreviewCamera() ;	
+				}
+				
+			}
+			break ;
+		case R.id.shutter:{
+				
+				
 			}
 			break ;
 		default:

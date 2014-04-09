@@ -85,6 +85,16 @@ public class SipDataManager {
     
     
     
+	public boolean isNetErrorStatus() {
+		
+		return netErrorStatus;
+	}
+
+	public void setNetErrorStatus(boolean netErrorStatus) {
+		
+		this.netErrorStatus = netErrorStatus;
+	}
+
 	public SipDataManager(Handler handler,String serverIp){
 		
 		String ser = serverIp ;

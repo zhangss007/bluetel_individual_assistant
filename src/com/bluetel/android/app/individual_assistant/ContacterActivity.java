@@ -341,6 +341,14 @@ public class ContacterActivity extends Activity{
 			}
 		}else{
 			
+			if (SipDataManager.isInstance()){
+				
+				
+				if (!SipDataManager.getInstance().isNetErrorStatus()){
+					
+					netStatus.setText("网络连接ok...") ;
+				}
+			}
 			//获得部门信息
 			mdepartList = Data.getInstance().getMdepartList() ;
 			mDepartMap = Data.getInstance().getmDepartMap() ;
@@ -365,11 +373,6 @@ public class ContacterActivity extends Activity{
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		
-//		if (MainActivity.isInStance()){
-//			
-//			MainActivity.getInstance().setActivityPortRair() ;
-//		}
 	}
 	
 	

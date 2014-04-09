@@ -130,14 +130,21 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 						break ;
 					case CALL_END:{
 						
-							if (MainService.instance().getCurrentMenuSelect() == R.id.capture){
-								
-								if(VideoActivity.isInstance()){
-								
-									VideoActivity.getInstance().startPreviewCamera() ;
-								}
-							}
+//						VideoActivity.getInstance().re
+//							if (MainService.instance().getCurrentMenuSelect() == R.id.capture){
+//								
+//								if(VideoActivity.isInstance()){
+//								
+//									VideoActivity.getInstance().startPreviewCamera() ;
+//								}
+//							}
 
+//						setActivityPortRair() ;
+//						resetMenuButtonSelector() ;
+//						contact.setSelected(true) ;
+//						
+//						startViewByActivity(ContacterActivity.class,0) ;
+//						showMenuBttom() ;
 							Toast.makeText(MainActivity.this, "服务器远程监控结束", Toast.LENGTH_SHORT).show();
 						}
 						break ;
@@ -145,8 +152,12 @@ public class MainActivity extends ActivityGroup implements OnClickListener,
 						
 							if(VideoActivity.isInstance()){
 								
-								Toast.makeText(MainActivity.this, "关闭当前已经开启的摄像头", Toast.LENGTH_SHORT).show();
+								//Toast.makeText(MainActivity.this, "关闭当前已经开启的摄像头", Toast.LENGTH_SHORT).show();
 								VideoActivity.getInstance().releaseCamera() ;
+								resetMenuButtonSelector() ;
+								capture.setSelected(true) ;
+								
+								startViewByActivity(VideoActivity.class,0) ;
 							}
 						}
 						break ;
