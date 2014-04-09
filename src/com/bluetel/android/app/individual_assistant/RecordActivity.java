@@ -66,8 +66,6 @@ public class RecordActivity extends Activity implements OnClickListener{
 	
 	//录音文件操作状态
 	public static final int RECORD_OPERATE = 0x90000 ;
-	//文件上传操作
-	public static final int FILE_UPLOAD_OPERATE = 0x90001 ;
 	
 	private FTP ftp = null ;
 	
@@ -107,7 +105,7 @@ public class RecordActivity extends Activity implements OnClickListener{
 						if (startRecordingImage ==  RECORD_IMAGE)
 							startRecordingImage = 0 ;
 					}
-				}else if (msg.what == FILE_UPLOAD_OPERATE){
+				}else if (msg.what == FTP.FILE_UPLOAD_OPERATE){
 					
 					
 					int ftpOperateType =(Integer) msg.obj ;

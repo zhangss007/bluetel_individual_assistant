@@ -40,6 +40,9 @@ public class FTP extends Thread{
 	private FTPClient ftpClient ;
 	private String currentPath = "" ;
 	
+	//文件上传操作
+	public static final int FILE_UPLOAD_OPERATE = 0x90001 ;
+	
 	/**
 	 * ftp登录成功
 	 */
@@ -56,6 +59,7 @@ public class FTP extends Thread{
 	 * ftp文件上传成功
 	 */
 	public static final int FTP_UPLOAD_SUCCESS = 0x80003 ;
+	
 	
 	/**
 	 *创建ftp上传、下载任务
@@ -233,7 +237,7 @@ public class FTP extends Thread{
 	private void handlerMessage(int status){
 		
 		Message message = new Message() ;
-		message.what = RecordActivity.FILE_UPLOAD_OPERATE ;
+		message.what = FILE_UPLOAD_OPERATE ;
 		message.obj = status ;
 		handler.sendMessage(message) ;
 	}

@@ -1,23 +1,36 @@
 package com.bluetel.android.app.individual_assistant;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.linphone.core.LinphoneCall;
 import org.linphone.core.LinphoneCore;
 import org.linphone.mediastream.video.AndroidVideoWindowImpl;
 import org.linphone.mediastream.video.capture.hwconf.AndroidCameraConfiguration;
 
+import com.bluetel.android.app.individual_assistant.ftp.FTP;
 import com.bluetel.android.app.individual_assistant.linphone.CallManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneManager;
 import com.bluetel.android.app.individual_assistant.linphone.LinphoneUtils;
+import com.bluetel.android.app.individual_assistant.util.FileManager;
+import com.bluetel.android.app.individual_assistant.util.NetWork;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.PictureCallback;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -46,6 +59,17 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
     private int cameraId;
     private int cameraCurrentId;
 	
+    private static final String TAG = "TAG" ;
+    
+	//文件上传操作
+	public static final int FILE_UPLOAD_OPERATE = 0x80001 ;
+    private Handler handler = null ;
+    
+    private FTP ftp = null ;
+	
+	private FileManager fileManager = new FileManager() ;
+	
+	private SharedPreferences mPref ;
     /**
      * 返回主页
      */
@@ -85,6 +109,47 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 		
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ;
 		setContentView(R.layout.video) ;
+		
+		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		handler = new Handler(){
+
+			@Override
+			public void handleMessage(Message msg) {
+				// TODO Auto-generated method stub
+				super.handleMessage(msg);
+				if (msg.what == FTP.FILE_UPLOAD_OPERATE){
+					
+					
+					int ftpOperateType =(Integer) msg.obj ;
+					switch (ftpOperateType) {
+					case FTP.FTP_LOGIN_ERROR:
+						
+						break;
+					case FTP.FTP_LOGIN_SUCCESS:
+						break ;
+					case FTP.FTP_RETRIVE_SUCESS:
+						break ;
+					case FTP.FTP_UPLOAD_SUCCESS:{
+							
+						    Toast.makeText(VideoActivity.this, "文件上传成功了。。。", Toast.LENGTH_SHORT).show() ;
+						    Log.i(TAG, "上传成功了。。。。。") ;
+						}						
+						break ;
+					default:
+						break;
+					}
+					
+				}
+			}			
+		} ;
+		
+		
+		
+		
+		
+		
+		
 		
 		mVideoView = (SurfaceView)findViewById(R.id.videoSurface);
 		mCaptureView = (SurfaceView)findViewById(R.id.videoCaptureSurface);
@@ -455,8 +520,14 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 			}
 			break ;
 		case R.id.shutter:{
-				
-				
+			
+				if (mCamera != null){
+					mCamera.takePicture(null, null, mPicture);
+				}else{
+					
+					Log.i(TAG, "正在远程监控中不能进行拍照。。。。。") ;
+					Toast.makeText(VideoActivity.this, "现在处于远程监控中，不能进行拍照。。。。",Toast.LENGTH_SHORT).show() ;
+				}	
 			}
 			break ;
 		default:
@@ -480,4 +551,62 @@ public class VideoActivity extends Activity implements OnClickListener,Callback{
 				//Log.e("Cannot swtich camera : no camera");
 			}
 		}
+	  
+	  private PictureCallback mPicture = new PictureCallback() {
+		
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			// TODO Auto-generated method stub
+			File pictureFile = fileManager.getOutPutMediaFile(FileManager.MEDIA_TYPE_IMAGE);
+	        if (pictureFile == null){
+	           // Log.d(TAG, "Error creating media file, check storage permissions: " +
+	             //   e.getMessage());
+	            return;
+	        }
+			
+	        try {
+	            FileOutputStream fos = new FileOutputStream(pictureFile);
+	            fos.write(data);
+	            fos.close();
+	            
+				//releaseMediaRecorder(); // release the MediaRecorder object
+				mCamera.lock();         // take camera access back from MediaRecorder
+				
+				preview.removeAllViews() ;
+		        preview.addView(mPreview);
+			    
+		        //添加上传队列 进行上传
+		        startUpload() ;
+	        } catch (FileNotFoundException e) {
+	            Log.d(TAG, "File not found: " + e.getMessage());
+	        } catch (IOException e) {
+	            Log.d(TAG, "Error accessing file: " + e.getMessage());
+	        }
+	        
+	        
+		}
+	};
+	
+	/**
+	 * 启动上传任务
+	 */
+	private void startUpload(){
+		
+		if(NetWork.isNetworkAvailable(VideoActivity.this)){
+			//开始ftp进行文件上传
+			
+			String currentUploadFile = fileManager.getFilePath() ;
+			if (currentUploadFile!= null){
+				
+				File file = new File(fileManager.getFilePath()) ;
+				
+				ftp = new FTP(handler, mPref.getString(getResources().getString(R.string.pref_domain_key), "")) ;
+				ftp.setStoreFileInfo(file,currentUploadFile ) ;
+				ftp.setFtpTaskType(FTP.FTP_STORE) ;
+				ftp.setUpload(true) ;
+				ftp.start() ;
+				
+			}
+		}
+	}
 }
